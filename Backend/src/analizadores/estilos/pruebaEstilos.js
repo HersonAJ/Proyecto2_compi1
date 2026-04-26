@@ -3,93 +3,88 @@ const GeneradorEstilos = require('./GeneradorEstilos');
 const generador = new GeneradorEstilos();
 
 const entrada = `
-/* ========== Estilo valido (no debe reportar nada) ========== */
+/* ========== Caso valido ========== */
 estilo-correcto {
     height = 100;
-    width = 200;
+    color = red;
+    text align = CENTER;
+    text font = SANS SERIF;
+    border style = DOTTED;
+}
+
+/* ========== ERROR: Estilo duplicado ========== */
+duplicado {
     color = blue;
 }
 
-/* ========== ERROR 1: Caracter desconocido (lexico) ========== */
-con-error-lexico {
-    height = 100;
-    color = & red;
-    width = 200;
+duplicado {
+    color = green;
 }
 
-/* ========== ERROR 2: Caracteres desconocidos consecutivos (acumulacion) ========== */
-con-lexico-multiple {
-    color = &?! red;
-    height = 50;
+/* ========== ERROR: Heredarse de si mismo ========== */
+auto-herencia extends auto-herencia {
+    color = red;
 }
 
-/* ========== ERROR 3: Falta valor antes del ";" ========== */
-falta-valor {
-    height = 100;
-    color = ;
-    padding = 20;
+/* ========== ERROR: Heredar de estilo inexistente ========== */
+hijo-huerfano extends padre-fantasma {
+    width = 100;
 }
 
-/* ========== ERROR 4: Falta ";" antes del "}" ========== */
-falta-punto-coma {
-    height = 100;
-    color = red
+/* ========== ERROR: Herencia circular ========== */
+ciclico-a extends ciclico-b {
+    color = red;
 }
 
-/* ========== ERROR 5: Multiples errores en el mismo estilo ========== */
-multiples-errores {
-    height = 100;
-    color = ;
-    width = 200;
-    padding = ;
-    margin = 10;
+ciclico-b extends ciclico-a {
+    color = blue;
 }
 
-/* ========== ERROR 6: Error dentro de un @for ========== */
-@for $i from 1 through 3 {
+/* ========== ERROR: tipo de valor incorrecto ========== */
+tipos-mal {
+    height = solid;
+    color = 100;
+    text align = ARRIBA;
+    text font = COMIC;
+    border style = SQUIGGLY;
+}
+
+/* ========== ERROR: rango invertido en @for ========== */
+@for $i from 5 through 1 {
     elemento-$i {
-        text size = $i * 10
+        text size = $i * 10;
     }
 }
 
-/* ========== ERROR 7: @for con encabezado mal formado ========== */
-@for $j 1 through 5 {
-    roto-$j {
-        width = 100;
-    }
-}
-
-/* ========== ERROR 8: @for sin variable ========== */
-@for from 1 through 4 {
-    item-$x {
-        color = blue;
-    }
-}
-
-/* ========== ERROR 9: Estilo con error en herencia ========== */
-estilo-base-valido {
-    color = black;
-}
-
-mal-extends extends estilo-base-valido {
-    color = ;
-    padding = 10;
-}
-
-/* ========== Estilo valido al final (verifica que el parser sigue funcionando) ========== */
+/* ========== Caso valido al final ========== */
 ultimo-estilo {
     margin = 5;
-    border = 1 solid black;
 }
 `;
 
 const resultado = generador.analizar(entrada);
 
-if (resultado.exito) {
-    console.log('Analisis exitoso!');
-    console.log(JSON.stringify(resultado.resultado, null, 2));
-} else {
-    console.log('Salida con errores:');
-    console.log('Errores:', resultado.errores);
-    console.log('AST parcial:', JSON.stringify(resultado.resultado, null, 2));
+console.log('==================================================');
+console.log('Total definiciones validas:', resultado.resultado ? resultado.resultado.length : 0);
+console.log('Total errores:', resultado.errores.length);
+console.log('==================================================\n');
+
+console.log('ERRORES POR TIPO:\n');
+const porTipo = { Lexico: 0, Sintactico: 0, Semantico: 0 };
+resultado.errores.forEach(e => {
+    porTipo[e.tipo] = (porTipo[e.tipo] || 0) + 1;
+});
+console.log(porTipo);
+console.log('');
+
+console.log('DETALLE DE ERRORES:\n');
+console.log(resultado.errores);
+
+console.log('\n==================================================');
+console.log('TABLA DE SIMBOLOS:\n');
+if (resultado.tablaSimbolos) {
+    const todos = resultado.tablaSimbolos.obtenerTodos();
+    todos.forEach(s => {
+        console.log(`  ${s.nombre} (scope: ${s.scope}) - tipo: ${s.info.tipo}, linea: ${s.info.linea}`);
+    });
 }

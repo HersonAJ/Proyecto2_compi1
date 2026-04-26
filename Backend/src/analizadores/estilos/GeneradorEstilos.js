@@ -1,4 +1,5 @@
 const parser = require('./estilos');
+const AnalizadorSemanticoEstilos = require('./semantico/AnalizadorSemanticoEstilos');
 
 class GeneradorEstilos {
     analizar(entrada) {
@@ -7,32 +8,44 @@ class GeneradorEstilos {
         parser.yy._ultimoToken = null;
 
         // Interceptar errores sintacticos del parser
-parser.parseError = function(msg, hash) {
-    parser.yy._ultimoError = {
-        lexema: hash.text || '',
-        linea: hash.loc ? hash.loc.first_line : 0,
-        columna: hash.loc ? hash.loc.first_column + 1 : 0
-    };
-};
+        parser.parseError = function(msg, hash) {
+            parser.yy._ultimoError = {
+                lexema: hash.text || '',
+                linea: hash.loc ? hash.loc.first_line : 0,
+                columna: hash.loc ? hash.loc.first_column + 1 : 0
+            };
+        };
 
         try {
             const resultado = parser.parse(entrada);
 
-            const errores = [
-                ...(resultado.erroresLexicos || []),
-                ...(resultado.erroresSintacticos || [])
+            const erroresLexicos = resultado.erroresLexicos || [];
+            const erroresSintacticos = resultado.erroresSintacticos || [];
+            const definiciones = resultado.definiciones || [];
+
+            // Solo correr el analizador semantico si no hay errores graves
+            // (igual lo intentamos siempre, validando lo que se pudo parsear)
+            const semantico = new AnalizadorSemanticoEstilos();
+            const resultadoSemantico = semantico.analizar(definiciones);
+
+            const todosErrores = [
+                ...erroresLexicos,
+                ...erroresSintacticos,
+                ...resultadoSemantico.errores
             ];
 
             return {
-                exito: errores.length === 0,
-                resultado: resultado.definiciones,
-                errores: errores
+                exito: todosErrores.length === 0,
+                resultado: definiciones,
+                tablaSimbolos: resultadoSemantico.tabla,
+                errores: todosErrores
             };
 
         } catch (error) {
             return {
                 exito: false,
                 resultado: null,
+                tablaSimbolos: null,
                 errores: [{
                     tipo: 'SintacticoFatal',
                     lexema: error.hash ? error.hash.text : '',
