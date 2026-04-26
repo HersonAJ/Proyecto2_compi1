@@ -4,17 +4,16 @@ class GeneradorEstilos {
     analizar(entrada) {
         parser.yy = {};
         parser.yy._ultimoError = null;
+        parser.yy._ultimoToken = null;
 
         // Interceptar errores sintacticos del parser
-        parser.parseError = function (msg, hash) {
-            parser.yy._ultimoError = {
-                lexema: hash.text || '',
-                linea: hash.loc ? hash.loc.first_line : (hash.line != null ? hash.line + 1 : 0),
-                columna: hash.loc ? hash.loc.first_column + 1 : 0,
-                esperados: hash.expected || []
-            };
-
-        };
+parser.parseError = function(msg, hash) {
+    parser.yy._ultimoError = {
+        lexema: hash.text || '',
+        linea: hash.loc ? hash.loc.first_line : 0,
+        columna: hash.loc ? hash.loc.first_column + 1 : 0
+    };
+};
 
         try {
             const resultado = parser.parse(entrada);
