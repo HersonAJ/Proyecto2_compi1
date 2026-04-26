@@ -112,10 +112,23 @@ definicion
 
 estilo
     : IDENTIFICADOR LLAVE_IZQ propiedades LLAVE_DER {
-        $$ = { tipo:'estilo', nombre:$1, propiedades:$3 };
+        $$ = {
+            tipo: 'estilo',
+            nombre: $1,
+            propiedades: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
     }
     | IDENTIFICADOR EXTENDS IDENTIFICADOR LLAVE_IZQ propiedades LLAVE_DER {
-        $$ = { tipo:'estilo', nombre:$1, extiende:$3, propiedades:$5 };
+        $$ = {
+            tipo: 'estilo',
+            nombre: $1,
+            extiende: $3,
+            propiedades: $5,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
     }
     | IDENTIFICADOR LLAVE_IZQ error LLAVE_DER {
         var info = yy._ultimoError || yy._ultimoToken;
@@ -134,7 +147,15 @@ estilo
 
 bucle_for
     : FOR_LOOP VARIABLE FROM ENTERO THROUGH ENTERO LLAVE_IZQ cuerpo_for LLAVE_DER {
-        $$ = { tipo:'for', variable:$2, desde:Number($4), hasta:Number($6), cuerpo:$8 };
+        $$ = {
+            tipo: 'for',
+            variable: $2,
+            desde: Number($4),
+            hasta: Number($6),
+            cuerpo: $8,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
     }
     | FOR_LOOP error LLAVE_DER {
         var info = yy._ultimoError || yy._ultimoToken;
@@ -158,7 +179,13 @@ cuerpo_for
 
 estilo_for
     : nombre_for LLAVE_IZQ propiedades LLAVE_DER {
-        $$ = { tipo:'estilo', nombre:$1, propiedades:$3 };
+        $$ = {
+            tipo: 'estilo',
+            nombre: $1,
+            propiedades: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
     }
     | nombre_for LLAVE_IZQ error LLAVE_DER {
         var info = yy._ultimoError || yy._ultimoToken;
@@ -178,6 +205,7 @@ estilo_for
 nombre_for
     : IDENTIFICADOR
     | IDENTIFICADOR MENOS VARIABLE { $$=$1+'-'+$3; }
+    | VARIABLE MENOS IDENTIFICADOR { $$=$1+'-'+$3; }
 ;
 
 propiedades
@@ -192,42 +220,44 @@ lista_propiedades
 
 propiedad
     : nombre_propiedad IGUAL valores PUNTO_COMA {
-        $$ = { nombre:$1, valores:$3 };
+        $$ = {
+            nombre: $1,
+            valores: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
     }
-| nombre_propiedad IGUAL valores error
-{
-    var encontrado = yy._ultimoToken;
-    var ultimoValor = yy._ultimoValor;
-    
-    erroresSintacticos.push(
-        new ErrorYFERA(
-            'Sintactico',
-            encontrado.lexema,
-            encontrado.linea,
-            encontrado.columna,
-            'Se esperaba ";" despues de "' + (ultimoValor ? ultimoValor.lexema : '') + '". Se encontro "' + encontrado.lexema + '"'
-        )
-    );
+    | nombre_propiedad IGUAL valores error {
+        var encontrado = yy._ultimoToken;
+        var ultimoValor = yy._ultimoValor;
 
-    $$ = null;
-}
-    | nombre_propiedad IGUAL PUNTO_COMA
-{
-    var info = yy._ultimoToken;
+        erroresSintacticos.push(
+            new ErrorYFERA(
+                'Sintactico',
+                encontrado.lexema,
+                encontrado.linea,
+                encontrado.columna,
+                'Se esperaba ";" despues de "' + (ultimoValor ? ultimoValor.lexema : '') + '". Se encontro "' + encontrado.lexema + '"'
+            )
+        );
 
-    erroresSintacticos.push(
-        new ErrorYFERA(
-            'Sintactico',
-            info.lexema,
-            info.linea,
-            info.columna,
-            'Se esperaba un valor antes de ";"'
-        )
-    );
+        $$ = null;
+    }
+    | nombre_propiedad IGUAL PUNTO_COMA {
+        var info = yy._ultimoToken;
 
-    $$ = null;
-}
+        erroresSintacticos.push(
+            new ErrorYFERA(
+                'Sintactico',
+                info.lexema,
+                info.linea,
+                info.columna,
+                'Se esperaba un valor antes de ";"'
+            )
+        );
 
+        $$ = null;
+    }
 ;
 
 nombre_propiedad
@@ -237,26 +267,97 @@ nombre_propiedad
 lista_identificadores
     : lista_identificadores IDENTIFICADOR { $1.push($2); $$=$1; }
     | IDENTIFICADOR { $$=[$1]; }
-    ;
+;
 
 valores
     : valores valor_item { $1.push($2); $$=$1; }
     | valor_item { $$=[$1]; }
-    ;
+;
 
 valor_item
-    : expresion { $$=$1; }
-    | DECIMAL { $$={tipo:'decimal',valor:parseFloat($1)}; }
-    | PORCENTAJE { $$={tipo:'porcentaje',valor:$1}; }
-    | IDENTIFICADOR { $$={tipo:'identificador',valor:$1}; }
-    ;
+    : expresion { $$ = $1; }
+    | DECIMAL {
+        $$ = {
+            tipo: 'decimal',
+            valor: parseFloat($1),
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | PORCENTAJE {
+        $$ = {
+            tipo: 'porcentaje',
+            valor: $1,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | IDENTIFICADOR {
+        $$ = {
+            tipo: 'identificador',
+            valor: $1,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+;
 
 expresion
-    : VARIABLE { $$={tipo:'variable',valor:$1}; }
-    | ENTERO { $$={tipo:'entero',valor:Number($1)}; }
-    | expresion MAS expresion { $$={tipo:'binaria',op:'+',izq:$1,der:$3}; }
-    | expresion MENOS expresion { $$={tipo:'binaria',op:'-',izq:$1,der:$3}; }
-    | expresion POR expresion { $$={tipo:'binaria',op:'*',izq:$1,der:$3}; }
-    | expresion DIVISION expresion { $$={tipo:'binaria',op:'/',izq:$1,der:$3}; }
-    | PAR_IZQ expresion PAR_DER { $$=$2; }
-    ;
+    : VARIABLE {
+        $$ = {
+            tipo: 'variable',
+            valor: $1,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | ENTERO {
+        $$ = {
+            tipo: 'entero',
+            valor: Number($1),
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | expresion MAS expresion {
+        $$ = {
+            tipo: 'binaria',
+            op: '+',
+            izq: $1,
+            der: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | expresion MENOS expresion {
+        $$ = {
+            tipo: 'binaria',
+            op: '-',
+            izq: $1,
+            der: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | expresion POR expresion {
+        $$ = {
+            tipo: 'binaria',
+            op: '*',
+            izq: $1,
+            der: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | expresion DIVISION expresion {
+        $$ = {
+            tipo: 'binaria',
+            op: '/',
+            izq: $1,
+            der: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | PAR_IZQ expresion PAR_DER { $$ = $2; }
+;

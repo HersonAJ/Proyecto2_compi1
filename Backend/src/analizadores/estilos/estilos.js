@@ -72,12 +72,12 @@
   }
 */
 var estilos = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[5,9,14],$V1=[1,19],$V2=[2,18],$V3=[9,12],$V4=[9,26],$V5=[1,36],$V6=[1,37],$V7=[1,38],$V8=[1,34],$V9=[1,35],$Va=[1,39],$Vb=[2,9,15,17,28,32,33,37],$Vc=[1,46],$Vd=[1,45],$Ve=[1,47],$Vf=[1,48],$Vg=[2,9,15,17,22,28,32,33,34,35,36,37,38],$Vh=[2,9,15,17,22,28,32,33,34,37,38];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[5,9,14],$V1=[1,19],$V2=[2,20],$V3=[9,12],$V4=[9,26],$V5=[9,12,15],$V6=[2,13],$V7=[1,38],$V8=[1,39],$V9=[1,40],$Va=[1,36],$Vb=[1,37],$Vc=[1,41],$Vd=[1,47],$Ve=[1,48],$Vf=[2,9,15,17,28,32,33,37],$Vg=[1,53],$Vh=[1,52],$Vi=[1,54],$Vj=[1,55],$Vk=[2,9,15,17,22,28,32,33,34,35,36,37,38],$Vl=[2,9,15,17,22,28,32,33,34,37,38];
 var parser = {trace: function trace () { },
 yy: {},
 symbols_: {"error":2,"archivo":3,"definiciones":4,"EOF":5,"definicion":6,"estilo":7,"bucle_for":8,"IDENTIFICADOR":9,"LLAVE_IZQ":10,"propiedades":11,"LLAVE_DER":12,"EXTENDS":13,"FOR_LOOP":14,"VARIABLE":15,"FROM":16,"ENTERO":17,"THROUGH":18,"cuerpo_for":19,"estilo_for":20,"nombre_for":21,"MENOS":22,"lista_propiedades":23,"propiedad":24,"nombre_propiedad":25,"IGUAL":26,"valores":27,"PUNTO_COMA":28,"lista_identificadores":29,"valor_item":30,"expresion":31,"DECIMAL":32,"PORCENTAJE":33,"MAS":34,"POR":35,"DIVISION":36,"PAR_IZQ":37,"PAR_DER":38,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"EOF",9:"IDENTIFICADOR",10:"LLAVE_IZQ",12:"LLAVE_DER",13:"EXTENDS",14:"FOR_LOOP",15:"VARIABLE",16:"FROM",17:"ENTERO",18:"THROUGH",22:"MENOS",26:"IGUAL",28:"PUNTO_COMA",32:"DECIMAL",33:"PORCENTAJE",34:"MAS",35:"POR",36:"DIVISION",37:"PAR_IZQ",38:"PAR_DER"},
-productions_: [0,[3,2],[4,2],[4,0],[6,1],[6,1],[7,4],[7,6],[7,4],[8,9],[8,3],[19,2],[19,0],[20,4],[20,4],[21,1],[21,3],[11,1],[11,0],[23,2],[23,1],[24,4],[24,4],[24,3],[25,1],[29,2],[29,1],[27,2],[27,1],[30,1],[30,1],[30,1],[30,1],[31,1],[31,1],[31,3],[31,3],[31,3],[31,3],[31,3]],
+productions_: [0,[3,2],[4,2],[4,0],[6,1],[6,1],[7,4],[7,6],[7,4],[8,9],[8,5],[8,3],[19,2],[19,0],[20,4],[20,4],[21,1],[21,3],[21,3],[11,1],[11,0],[23,2],[23,1],[24,4],[24,4],[24,3],[25,1],[29,2],[29,1],[27,2],[27,1],[30,1],[30,1],[30,1],[30,1],[31,1],[31,1],[31,3],[31,3],[31,3],[31,3],[31,3]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -95,20 +95,33 @@ case 1:
         return this.$;
     
 break;
-case 2: case 11: case 19:
+case 2: case 12: case 21:
  if($$[$0]) $$[$0-1].push($$[$0]); this.$=$$[$0-1]; 
 break;
-case 3: case 12: case 18:
+case 3: case 13: case 20:
  this.$=[]; 
 break;
-case 6: case 13:
+case 6: case 14:
 
-        this.$ = { tipo:'estilo', nombre:$$[$0-3], propiedades:$$[$0-1] };
+        this.$ = {
+            tipo: 'estilo',
+            nombre: $$[$0-3],
+            propiedades: $$[$0-1],
+            linea: _$[$0-3].first_line,
+            columna: _$[$0-3].first_column + 1
+        };
     
 break;
 case 7:
 
-        this.$ = { tipo:'estilo', nombre:$$[$0-5], extiende:$$[$0-3], propiedades:$$[$0-1] };
+        this.$ = {
+            tipo: 'estilo',
+            nombre: $$[$0-5],
+            extiende: $$[$0-3],
+            propiedades: $$[$0-1],
+            linea: _$[$0-5].first_line,
+            columna: _$[$0-5].first_column + 1
+        };
     
 break;
 case 8:
@@ -128,12 +141,35 @@ case 8:
 break;
 case 9:
 
-        this.$ = { tipo:'for', variable:$$[$0-7], desde:Number($$[$0-5]), hasta:Number($$[$0-3]), cuerpo:$$[$0-1] };
+        this.$ = {
+            tipo: 'for',
+            variable: $$[$0-7],
+            desde: Number($$[$0-5]),
+            hasta: Number($$[$0-3]),
+            cuerpo: $$[$0-1],
+            linea: _$[$0-8].first_line,
+            columna: _$[$0-8].first_column + 1
+        };
     
 break;
 case 10:
 
-        var info = yy._ultimoError || yy._ultimoToken;
+        var info = yy._ultimoToken;
+        erroresSintacticos.push(
+            new ErrorYFERA(
+                'Sintactico',
+                info?.lexema || '',
+                info?.linea,
+                info?.columna,
+                'Error en el encabezado del @for. Se esperaba "@for $var from n through n"'
+            )
+        );
+        this.$ = null;
+    
+break;
+case 11:
+
+        var info = yy._ultimoToken;
         erroresSintacticos.push(
             new ErrorYFERA(
                 'Sintactico',
@@ -146,7 +182,7 @@ case 10:
         this.$ = null;
     
 break;
-case 14:
+case 15:
 
         var info = yy._ultimoError || yy._ultimoToken;
         erroresSintacticos.push(
@@ -161,98 +197,174 @@ case 14:
         this.$ = null;
     
 break;
-case 16:
+case 17: case 18:
  this.$=$$[$0-2]+'-'+$$[$0]; 
 break;
-case 20:
- this.$ = $$[$0] ? [$$[$0]] : []; 
-break;
-case 21:
-
-        this.$ = { nombre:$$[$0-3], valores:$$[$0-1] };
-    
-break;
 case 22:
-
-    var encontrado = yy._ultimoToken;
-    var ultimoValor = yy._ultimoValor;
-    
-    erroresSintacticos.push(
-        new ErrorYFERA(
-            'Sintactico',
-            encontrado.lexema,
-            encontrado.linea,
-            encontrado.columna,
-            'Se esperaba ";" despues de "' + (ultimoValor ? ultimoValor.lexema : '') + '". Se encontro "' + encontrado.lexema + '"'
-        )
-    );
-
-    this.$ = null;
-
+ this.$ = $$[$0] ? [$$[$0]] : []; 
 break;
 case 23:
 
-    var info = yy._ultimoToken;
-
-    erroresSintacticos.push(
-        new ErrorYFERA(
-            'Sintactico',
-            info.lexema,
-            info.linea,
-            info.columna,
-            'Se esperaba un valor antes de ";"'
-        )
-    );
-
-    this.$ = null;
-
+        this.$ = {
+            nombre: $$[$0-3],
+            valores: $$[$0-1],
+            linea: _$[$0-3].first_line,
+            columna: _$[$0-3].first_column + 1
+        };
+    
 break;
 case 24:
+
+        var encontrado = yy._ultimoToken;
+        var ultimoValor = yy._ultimoValor;
+
+        erroresSintacticos.push(
+            new ErrorYFERA(
+                'Sintactico',
+                encontrado.lexema,
+                encontrado.linea,
+                encontrado.columna,
+                'Se esperaba ";" despues de "' + (ultimoValor ? ultimoValor.lexema : '') + '". Se encontro "' + encontrado.lexema + '"'
+            )
+        );
+
+        this.$ = null;
+    
+break;
+case 25:
+
+        var info = yy._ultimoToken;
+
+        erroresSintacticos.push(
+            new ErrorYFERA(
+                'Sintactico',
+                info.lexema,
+                info.linea,
+                info.columna,
+                'Se esperaba un valor antes de ";"'
+            )
+        );
+
+        this.$ = null;
+    
+break;
+case 26:
  this.$=$$[$0].join(' '); 
 break;
-case 25: case 27:
+case 27: case 29:
  $$[$0-1].push($$[$0]); this.$=$$[$0-1]; 
 break;
-case 26: case 28:
+case 28: case 30:
  this.$=[$$[$0]]; 
 break;
-case 29:
- this.$=$$[$0]; 
-break;
-case 30:
- this.$={tipo:'decimal',valor:parseFloat($$[$0])}; 
-break;
 case 31:
- this.$={tipo:'porcentaje',valor:$$[$0]}; 
+ this.$ = $$[$0]; 
 break;
 case 32:
- this.$={tipo:'identificador',valor:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'decimal',
+            valor: parseFloat($$[$0]),
+            linea: _$[$0].first_line,
+            columna: _$[$0].first_column + 1
+        };
+    
 break;
 case 33:
- this.$={tipo:'variable',valor:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'porcentaje',
+            valor: $$[$0],
+            linea: _$[$0].first_line,
+            columna: _$[$0].first_column + 1
+        };
+    
 break;
 case 34:
- this.$={tipo:'entero',valor:Number($$[$0])}; 
+
+        this.$ = {
+            tipo: 'identificador',
+            valor: $$[$0],
+            linea: _$[$0].first_line,
+            columna: _$[$0].first_column + 1
+        };
+    
 break;
 case 35:
- this.$={tipo:'binaria',op:'+',izq:$$[$0-2],der:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'variable',
+            valor: $$[$0],
+            linea: _$[$0].first_line,
+            columna: _$[$0].first_column + 1
+        };
+    
 break;
 case 36:
- this.$={tipo:'binaria',op:'-',izq:$$[$0-2],der:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'entero',
+            valor: Number($$[$0]),
+            linea: _$[$0].first_line,
+            columna: _$[$0].first_column + 1
+        };
+    
 break;
 case 37:
- this.$={tipo:'binaria',op:'*',izq:$$[$0-2],der:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'binaria',
+            op: '+',
+            izq: $$[$0-2],
+            der: $$[$0],
+            linea: _$[$0-2].first_line,
+            columna: _$[$0-2].first_column + 1
+        };
+    
 break;
 case 38:
- this.$={tipo:'binaria',op:'/',izq:$$[$0-2],der:$$[$0]}; 
+
+        this.$ = {
+            tipo: 'binaria',
+            op: '-',
+            izq: $$[$0-2],
+            der: $$[$0],
+            linea: _$[$0-2].first_line,
+            columna: _$[$0-2].first_column + 1
+        };
+    
 break;
 case 39:
- this.$=$$[$0-1]; 
+
+        this.$ = {
+            tipo: 'binaria',
+            op: '*',
+            izq: $$[$0-2],
+            der: $$[$0],
+            linea: _$[$0-2].first_line,
+            columna: _$[$0-2].first_column + 1
+        };
+    
+break;
+case 40:
+
+        this.$ = {
+            tipo: 'binaria',
+            op: '/',
+            izq: $$[$0-2],
+            der: $$[$0],
+            linea: _$[$0-2].first_line,
+            columna: _$[$0-2].first_column + 1
+        };
+    
+break;
+case 41:
+ this.$ = $$[$0-1]; 
 break;
 }
 },
-table: [o($V0,[2,3],{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:[1,7],14:[1,8]},{1:[2,1]},o($V0,[2,2]),o($V0,[2,4]),o($V0,[2,5]),{10:[1,9],13:[1,10]},{2:[1,12],15:[1,11]},{2:[1,14],9:$V1,11:13,12:$V2,23:15,24:16,25:17,29:18},{9:[1,20]},{16:[1,21]},{12:[1,22]},{12:[1,23]},{12:[1,24]},{9:$V1,12:[2,17],24:25,25:17,29:18},o($V3,[2,20]),{26:[1,26]},{9:[1,27],26:[2,24]},o($V4,[2,26]),{10:[1,28]},{17:[1,29]},o($V0,[2,10]),o($V0,[2,6]),o($V0,[2,8]),o($V3,[2,19]),{9:$V5,15:$V6,17:$V7,27:30,28:[1,31],30:32,31:33,32:$V8,33:$V9,37:$Va},o($V4,[2,25]),{9:$V1,11:40,12:$V2,23:15,24:16,25:17,29:18},{18:[1,41]},{2:[1,43],9:$V5,15:$V6,17:$V7,28:[1,42],30:44,31:33,32:$V8,33:$V9,37:$Va},o($V3,[2,23]),o($Vb,[2,28]),o($Vb,[2,29],{22:$Vc,34:$Vd,35:$Ve,36:$Vf}),o($Vb,[2,30]),o($Vb,[2,31]),o($Vb,[2,32]),o($Vg,[2,33]),o($Vg,[2,34]),{15:$V6,17:$V7,31:49,37:$Va},{12:[1,50]},{17:[1,51]},o($V3,[2,21]),o($V3,[2,22]),o($Vb,[2,27]),{15:$V6,17:$V7,31:52,37:$Va},{15:$V6,17:$V7,31:53,37:$Va},{15:$V6,17:$V7,31:54,37:$Va},{15:$V6,17:$V7,31:55,37:$Va},{22:$Vc,34:$Vd,35:$Ve,36:$Vf,38:[1,56]},o($V0,[2,7]),{10:[1,57]},o($Vh,[2,35],{35:$Ve,36:$Vf}),o($Vh,[2,36],{35:$Ve,36:$Vf}),o($Vg,[2,37]),o($Vg,[2,38]),o($Vg,[2,39]),o($V3,[2,12],{19:58}),{9:[1,62],12:[1,59],20:60,21:61},o($V0,[2,9]),o($V3,[2,11]),{10:[1,63]},{10:[2,15],22:[1,64]},{2:[1,66],9:$V1,11:65,12:$V2,23:15,24:16,25:17,29:18},{15:[1,67]},{12:[1,68]},{12:[1,69]},{10:[2,16]},o($V3,[2,13]),o($V3,[2,14])],
-defaultActions: {3:[2,1],67:[2,16]},
+table: [o($V0,[2,3],{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:[1,7],14:[1,8]},{1:[2,1]},o($V0,[2,2]),o($V0,[2,4]),o($V0,[2,5]),{10:[1,9],13:[1,10]},{2:[1,12],15:[1,11]},{2:[1,14],9:$V1,11:13,12:$V2,23:15,24:16,25:17,29:18},{9:[1,20]},{16:[1,21]},{10:[1,22],12:[1,23]},{12:[1,24]},{12:[1,25]},{9:$V1,12:[2,19],24:26,25:17,29:18},o($V3,[2,22]),{26:[1,27]},{9:[1,28],26:[2,26]},o($V4,[2,28]),{10:[1,29]},{17:[1,30]},o($V5,$V6,{19:31}),o($V0,[2,11]),o($V0,[2,6]),o($V0,[2,8]),o($V3,[2,21]),{9:$V7,15:$V8,17:$V9,27:32,28:[1,33],30:34,31:35,32:$Va,33:$Vb,37:$Vc},o($V4,[2,27]),{9:$V1,11:42,12:$V2,23:15,24:16,25:17,29:18},{18:[1,43]},{9:$Vd,12:[1,44],15:$Ve,20:45,21:46},{2:[1,50],9:$V7,15:$V8,17:$V9,28:[1,49],30:51,31:35,32:$Va,33:$Vb,37:$Vc},o($V3,[2,25]),o($Vf,[2,30]),o($Vf,[2,31],{22:$Vg,34:$Vh,35:$Vi,36:$Vj}),o($Vf,[2,32]),o($Vf,[2,33]),o($Vf,[2,34]),o($Vk,[2,35]),o($Vk,[2,36]),{15:$V8,17:$V9,31:56,37:$Vc},{12:[1,57]},{17:[1,58]},o($V0,[2,10]),o($V5,[2,12]),{10:[1,59]},{10:[2,16],22:[1,60]},{22:[1,61]},o($V3,[2,23]),o($V3,[2,24]),o($Vf,[2,29]),{15:$V8,17:$V9,31:62,37:$Vc},{15:$V8,17:$V9,31:63,37:$Vc},{15:$V8,17:$V9,31:64,37:$Vc},{15:$V8,17:$V9,31:65,37:$Vc},{22:$Vg,34:$Vh,35:$Vi,36:$Vj,38:[1,66]},o($V0,[2,7]),{10:[1,67]},{2:[1,69],9:$V1,11:68,12:$V2,23:15,24:16,25:17,29:18},{15:[1,70]},{9:[1,71]},o($Vl,[2,37],{35:$Vi,36:$Vj}),o($Vl,[2,38],{35:$Vi,36:$Vj}),o($Vk,[2,39]),o($Vk,[2,40]),o($Vk,[2,41]),o($V5,$V6,{19:72}),{12:[1,73]},{12:[1,74]},{10:[2,17]},{10:[2,18]},{9:$Vd,12:[1,75],15:$Ve,20:45,21:46},o($V5,[2,14]),o($V5,[2,15]),o($V0,[2,9])],
+defaultActions: {3:[2,1],70:[2,17],71:[2,18]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
