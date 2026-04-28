@@ -1,5 +1,6 @@
 const parser = require('./estilos');
 const AnalizadorSemanticoEstilos = require('./semantico/AnalizadorSemanticoEstilos');
+const TraductorEstilos = require('./traductor/TraductorEstilos');
 
 class GeneradorEstilos {
     analizar(entrada) {
@@ -7,7 +8,6 @@ class GeneradorEstilos {
         parser.yy._ultimoError = null;
         parser.yy._ultimoToken = null;
 
-        // Interceptar errores sintacticos del parser
         parser.parseError = function(msg, hash) {
             parser.yy._ultimoError = {
                 lexema: hash.text || '',
@@ -23,8 +23,7 @@ class GeneradorEstilos {
             const erroresSintacticos = resultado.erroresSintacticos || [];
             const definiciones = resultado.definiciones || [];
 
-            // Solo correr el analizador semantico si no hay errores graves
-            // (igual lo intentamos siempre, validando lo que se pudo parsear)
+            // Analisis semantico
             const semantico = new AnalizadorSemanticoEstilos();
             const resultadoSemantico = semantico.analizar(definiciones);
 
@@ -34,10 +33,18 @@ class GeneradorEstilos {
                 ...resultadoSemantico.errores
             ];
 
+            // Traduccion a CSS solo si no hay errores semanticos
+            var css = '';
+            if (resultadoSemantico.errores.length === 0) {
+                const traductor = new TraductorEstilos();
+                css = traductor.traducir(definiciones);
+            }
+
             return {
                 exito: todosErrores.length === 0,
                 resultado: definiciones,
                 tablaSimbolos: resultadoSemantico.tabla,
+                css: css,
                 errores: todosErrores
             };
 
@@ -46,6 +53,7 @@ class GeneradorEstilos {
                 exito: false,
                 resultado: null,
                 tablaSimbolos: null,
+                css: '',
                 errores: [{
                     tipo: 'SintacticoFatal',
                     lexema: error.hash ? error.hash.text : '',
