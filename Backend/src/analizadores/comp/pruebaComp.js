@@ -12,70 +12,122 @@ function probar(titulo, entrada) {
     console.log(JSON.stringify(resultado.errores, null, 2));
 }
 
-/* --- sanity de fases anteriores --- */
-probar('1) Componente con texto e imagen', `
-panel() {
+/* --- sanity --- */
+probar('1) Sanity: expresion aislada sigue funcionando', `1 + 2 * 3`);
+
+/* --- IF --- */
+probar('2) If solo', `
+demo() {
+    if ( $a == "hola" ) {
+        T("hola")
+    }
+}
+`);
+
+probar('3) If con else final', `
+demo() {
+    if ( $x > 10 ) {
+        T("grande")
+    } else {
+        T("chico")
+    }
+}
+`);
+
+probar('4) If con else cond y else final', `
+demo() {
+    if ( $x == "a" ) {
+        T("uno")
+    } else ( $x == "b" && $valido ) {
+        T("dos")
+    } else {
+        T("otro")
+    }
+}
+`);
+
+/* --- SWITCH --- */
+probar('5) Switch con casos y default', `
+demo() {
+    Switch( $opcion ) {
+        case "a" {
+            T("opcion a")
+        },
+        case "b" {
+            T("opcion b")
+        },
+        default {
+            T("ninguna")
+        }
+    }
+}
+`);
+
+probar('6) Switch sin default, valores numericos', `
+demo() {
+    Switch( $codigo ) {
+        case 1 {
+            T("uno")
+        },
+        case 2 {
+            T("dos")
+        }
+    }
+}
+`);
+
+/* --- FOR --- */
+probar('7) For each sencillo', `
+demo() {
+    for each ( $pkm : $equipo ) {
+        T("Tengo a $pkm")
+    }
+}
+`);
+
+probar('8) For complejo con track y empty', `
+demo() {
+    for ( $pkm : $equipo, $stat : $stats ) track $idx {
+        T("Pokemon $pkm con stat $stat")
+    } empty {
+        T("equipo vacio")
+    }
+}
+`);
+
+probar('9) For complejo sin empty', `
+demo() {
+    for ( $a : $arr ) track $i {
+        T("$a")
+    }
+}
+`);
+
+/* --- ANIDACION --- */
+probar('10) If dentro de For', `
+demo() {
+    for each ( $p : $lista ) {
+        if ( $p == "raro" ) {
+            T("encontrado")
+        } else {
+            T("normal")
+        }
+    }
+}
+`);
+
+probar('11) Switch dentro de seccion con if dentro de un caso', `
+demo() {
     [
-        T<grande>("Hola")
-        IMG("logo.png")
-    ]
-}
-`);
-
-/* --- Fase 3 --- */
-probar('2) Formulario simple sin SUBMIT', `
-login() {
-    FORM {
-        INPUT_TEXT(
-            id: "user",
-            label: "Usuario",
-            value: ""
-        )
-    }
-}
-`);
-
-probar('3) Formulario con tres tipos de input', `
-registro() {
-    FORM<azul> {
-        INPUT_TEXT(id: "name", label: "Nombre", value: "")
-        INPUT_NUMBER(id: "edad", label: "Edad", value: 18)
-        INPUT_BOOL(id: "acepto", label: "Acepto?", value: true)
-    }
-}
-`);
-
-probar('4) Formulario con SUBMIT y referencias', `
-updatePkmComponent(function functionUpdatePokemon, string currentName, int $currentPP) {
-    FORM<estilo-form> {
-        INPUT_TEXT(id: "name", label: "Nombre nuevo", value: "$currentName")
-        INPUT_NUMBER(id: "pp", label: "PP", value: $currentPP)
-        INPUT_BOOL(id: "valid", label: "Valido?", value: true)
-    } SUBMIT<estilo-btn> {
-        label: "Enviar",
-        function: $functionUpdatePokemon(@valid, @name)
-    }
-}
-`);
-
-probar('5) Formulario con texto e imagen dentro', `
-contacto() {
-    FORM {
-        T("Llena los datos:")
-        IMG("logo.png")
-        INPUT_TEXT(id: "email", label: "Correo", value: "")
-    } SUBMIT {
-        label: "Enviar"
-    }
-}
-`);
-
-probar('6) Formulario dentro de seccion', `
-pagina() {
-    <fondo>[
-        T("Bienvenido")
-        FORM<formulario> {
-            INPUT_TEXT(id: "q", label: "Buscar", value: "")
+        Switch( $tipo ) {
+            case "fuego" {
+                if ( $nivel > 50 ) {
+                    T("fuego fuerte")
+                }
+            },
+            default {
+                T("desconocido")
+            }
         }
     ]
 }
