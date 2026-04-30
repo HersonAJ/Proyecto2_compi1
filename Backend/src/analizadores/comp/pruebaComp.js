@@ -12,88 +12,71 @@ function probar(titulo, entrada) {
     console.log(JSON.stringify(resultado.errores, null, 2));
 }
 
-/* --- Casos previos (sanity) --- */
-probar('1) Componente vacio', `
-header() {
-}
-`);
-
-probar('2) Secciones anidadas con estilos', `
-profile() {
-    <azul>[
-        <chico>[
-        ]
+/* --- sanity de fases anteriores --- */
+probar('1) Componente con texto e imagen', `
+panel() {
+    [
+        T<grande>("Hola")
+        IMG("logo.png")
     ]
 }
 `);
 
-/* --- Fase 2: nuevos casos --- */
-probar('3) Texto simple sin estilos', `
-saludo() {
-    T("Hola mundo")
+/* --- Fase 3 --- */
+probar('2) Formulario simple sin SUBMIT', `
+login() {
+    FORM {
+        INPUT_TEXT(
+            id: "user",
+            label: "Usuario",
+            value: ""
+        )
+    }
 }
 `);
 
-probar('4) Texto con multiples estilos', `
-titulo() {
-    T<grande, negrita>("Bienvenido")
+probar('3) Formulario con tres tipos de input', `
+registro() {
+    FORM<azul> {
+        INPUT_TEXT(id: "name", label: "Nombre", value: "")
+        INPUT_NUMBER(id: "edad", label: "Edad", value: 18)
+        INPUT_BOOL(id: "acepto", label: "Acepto?", value: true)
+    }
 }
 `);
 
-probar('5) Texto multilinea', `
-descripcion() {
-    T("
-        Este es un texto
-        con varias lineas.
-    ")
+probar('4) Formulario con SUBMIT y referencias', `
+updatePkmComponent(function functionUpdatePokemon, string currentName, int $currentPP) {
+    FORM<estilo-form> {
+        INPUT_TEXT(id: "name", label: "Nombre nuevo", value: "$currentName")
+        INPUT_NUMBER(id: "pp", label: "PP", value: $currentPP)
+        INPUT_BOOL(id: "valid", label: "Valido?", value: true)
+    } SUBMIT<estilo-btn> {
+        label: "Enviar",
+        function: $functionUpdatePokemon(@valid, @name)
+    }
 }
 `);
 
-probar('6) Imagen individual', `
-foto() {
-    IMG("https://ejemplo.com/img.png")
-}
-`);
-
-probar('7) Carrusel con literales y variables', `
-galeria(string $url1) {
-    IMG<grande>("https://a.com/1.png", $url1, "https://b.com/2.png")
-}
-`);
-
-probar('8) Tabla simple', `
-grilla() {
-    [[
-        [[ T("celda 1") ]]
-        [[ T("celda 2") ]]
-    ]]
-}
-`);
-
-probar('9) Tabla con estilos y filas anidadas', `
-matriz() {
-    <bordes>[[
-        [[
-            [[ T("11") ]]
-            [[ T("12") ]]
-        ]]
-        [[
-            [[ T("21") ]]
-            [[ T("22") ]]
-        ]]
-    ]]
-}
-`);
-
-probar('10) Mezcla de elementos en seccion', `
-panel() {
-    <fondo>[
-        T<titulo>("Mi panel")
+probar('5) Formulario con texto e imagen dentro', `
+contacto() {
+    FORM {
+        T("Llena los datos:")
         IMG("logo.png")
-        [[
-            [[ T("dato 1") ]]
-            [[ T("dato 2") ]]
-        ]]
+        INPUT_TEXT(id: "email", label: "Correo", value: "")
+    } SUBMIT {
+        label: "Enviar"
+    }
+}
+`);
+
+probar('6) Formulario dentro de seccion', `
+pagina() {
+    <fondo>[
+        T("Bienvenido")
+        FORM<formulario> {
+            INPUT_TEXT(id: "q", label: "Buscar", value: "")
+        }
     ]
 }
 `);

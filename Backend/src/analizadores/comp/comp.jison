@@ -53,6 +53,20 @@
 ";"                         return 'PUNTO_COMA';
 ":"                         return 'DOS_PUNTOS';
 
+"FORM"                      return 'FORM';
+"INPUT_TEXT"                return 'INPUT_TEXT';
+"INPUT_NUMBER"              return 'INPUT_NUMBER';
+"INPUT_BOOL"                return 'INPUT_BOOL';
+"SUBMIT"                    return 'SUBMIT';
+"true"                      return 'TRUE';
+"false"                     return 'FALSE';
+"id"                        return 'ID_PROP';
+"label"                     return 'LABEL_PROP';
+"value"                     return 'VALUE_PROP';
+"function"                  return 'FUNCTION';
+
+[0-9]+("."[0-9]+)?          return 'NUMERO';
+"@"[a-zA-Z_][a-zA-Z0-9_]*   return 'REFERENCIA';
 \$[a-zA-Z_][a-zA-Z0-9_]*    return 'VARIABLE';
 [a-zA-Z_][a-zA-Z0-9_\-]*    return 'IDENTIFICADOR';
 
@@ -174,6 +188,8 @@ elemento
     | tabla_elem    { $$ = $1; }
     | texto         { $$ = $1; }
     | imagen        { $$ = $1; }
+    | formulario    { $$ = $1; }
+    | input_elem    { $$ = $1; }
     ;
 
 seccion
@@ -284,5 +300,211 @@ lista_urls
 
 url_item
     : CADENA        { $$ = { tipo: 'literal', valor: $1 }; }
+    | VARIABLE      { $$ = { tipo: 'variable', valor: $1.substring(1) }; }
+    ;
+
+formulario
+    : FORM LLAVE_IZQ elementos_opt LLAVE_DER submit_opt
+        {
+            $$ = {
+                tipo: 'formulario',
+                estilos: [],
+                elementos: $3,
+                submit: $5,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | FORM MENOR lista_estilos MAYOR LLAVE_IZQ elementos_opt LLAVE_DER submit_opt
+        {
+            $$ = {
+                tipo: 'formulario',
+                estilos: $3,
+                elementos: $6,
+                submit: $8,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+submit_opt
+    : submit        { $$ = $1; }
+    |               { $$ = null; }
+    ;
+
+submit
+    : SUBMIT LLAVE_IZQ propiedades_submit LLAVE_DER
+        {
+            $$ = {
+                tipo: 'submit',
+                estilos: [],
+                propiedades: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | SUBMIT MENOR lista_estilos MAYOR LLAVE_IZQ propiedades_submit LLAVE_DER
+        {
+            $$ = {
+                tipo: 'submit',
+                estilos: $3,
+                propiedades: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+propiedades_submit
+    : propiedades_submit COMA propiedad_submit
+        { $1.push($3); $$ = $1; }
+    | propiedad_submit
+        { $$ = [$1]; }
+    ;
+
+propiedad_submit
+    : LABEL_PROP DOS_PUNTOS CADENA
+        {
+            $$ = {
+                clave: 'label',
+                valor: { tipo: 'literal', valor: $3 },
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | FUNCTION DOS_PUNTOS llamada_funcion
+        {
+            $$ = {
+                clave: 'function',
+                valor: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+llamada_funcion
+    : VARIABLE PAR_IZQ argumentos_opt PAR_DER
+        {
+            $$ = {
+                tipo: 'llamada_funcion',
+                nombre: $1.substring(1),
+                argumentos: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+argumentos_opt
+    : argumentos        { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+argumentos
+    : argumentos COMA argumento
+        { $1.push($3); $$ = $1; }
+    | argumento
+        { $$ = [$1]; }
+    ;
+
+argumento
+    : REFERENCIA    { $$ = { tipo: 'referencia', valor: $1.substring(1) }; }
+    | VARIABLE      { $$ = { tipo: 'variable', valor: $1.substring(1) }; }
+    | CADENA        { $$ = { tipo: 'literal', valor: $1 }; }
+    | NUMERO        { $$ = { tipo: 'numero', valor: parseFloat($1) }; }
+    ;
+
+input_elem
+    : INPUT_TEXT PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'text',
+                estilos: [],
+                propiedades: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | INPUT_TEXT MENOR lista_estilos MAYOR PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'text',
+                estilos: $3,
+                propiedades: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | INPUT_NUMBER PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'number',
+                estilos: [],
+                propiedades: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | INPUT_NUMBER MENOR lista_estilos MAYOR PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'number',
+                estilos: $3,
+                propiedades: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | INPUT_BOOL PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'bool',
+                estilos: [],
+                propiedades: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | INPUT_BOOL MENOR lista_estilos MAYOR PAR_IZQ propiedades_input PAR_DER
+        {
+            $$ = {
+                tipo: 'input',
+                subtipo: 'bool',
+                estilos: $3,
+                propiedades: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+propiedades_input
+    : propiedades_input COMA propiedad_input
+        { $1.push($3); $$ = $1; }
+    | propiedad_input
+        { $$ = [$1]; }
+    ;
+
+propiedad_input
+    : ID_PROP DOS_PUNTOS valor_input
+        { $$ = { clave: 'id', valor: $3 }; }
+    | LABEL_PROP DOS_PUNTOS valor_input
+        { $$ = { clave: 'label', valor: $3 }; }
+    | VALUE_PROP DOS_PUNTOS valor_input
+        { $$ = { clave: 'value', valor: $3 }; }
+    ;
+
+valor_input
+    : CADENA        { $$ = { tipo: 'literal', valor: $1 }; }
+    | NUMERO        { $$ = { tipo: 'numero', valor: parseFloat($1) }; }
+    | TRUE          { $$ = { tipo: 'booleano', valor: true }; }
+    | FALSE         { $$ = { tipo: 'booleano', valor: false }; }
     | VARIABLE      { $$ = { tipo: 'variable', valor: $1.substring(1) }; }
     ;
