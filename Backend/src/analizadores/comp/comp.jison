@@ -23,11 +23,15 @@
 %lex
 %options case-sensitive
 
+%x string
+
 %%
 
 \s+                                              /* ignorar espacios */
 "/*"([^*]|\*+[^*/])*\*+"/"                       /* comentario multilinea */
 
+"T"                         return 'T';
+"IMG"                       return 'IMG';
 "int"                       return 'INT';
 "float"                     return 'FLOAT';
 "string"                    return 'STRING_T';
@@ -51,6 +55,11 @@
 
 \$[a-zA-Z_][a-zA-Z0-9_]*    return 'VARIABLE';
 [a-zA-Z_][a-zA-Z0-9_\-]*    return 'IDENTIFICADOR';
+
+\"                          { yy.cadena = ''; yy.cadenaInicio = { linea: yylloc.first_line, columna: yylloc.first_column + 1 }; this.begin('string'); }
+<string>\"                  { this.popState(); yytext = yy.cadena; yylloc.first_line = yy.cadenaInicio.linea; yylloc.first_column = yy.cadenaInicio.columna - 1; return 'CADENA'; }
+<string>\\\"                { yy.cadena += '"'; }
+<string>[^\"]               { yy.cadena += yytext; }
 
 <<EOF>>                     return 'EOF';
 
@@ -162,6 +171,9 @@ elementos
 
 elemento
     : seccion       { $$ = $1; }
+    | tabla_elem    { $$ = $1; }
+    | texto         { $$ = $1; }
+    | imagen        { $$ = $1; }
     ;
 
 seccion
@@ -192,4 +204,85 @@ lista_estilos
         { $1.push($3); $$ = $1; }
     | IDENTIFICADOR
         { $$ = [$1]; }
+    ;
+
+tabla_elem
+    : COR_DOBLE_IZQ elementos_opt COR_DOBLE_DER
+        {
+            $$ = {
+                tipo: 'tabla',
+                estilos: [],
+                elementos: $2,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | MENOR lista_estilos MAYOR COR_DOBLE_IZQ elementos_opt COR_DOBLE_DER
+        {
+            $$ = {
+                tipo: 'tabla',
+                estilos: $2,
+                elementos: $5,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+texto
+    : T PAR_IZQ CADENA PAR_DER
+        {
+            $$ = {
+                tipo: 'texto',
+                estilos: [],
+                contenido: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | T MENOR lista_estilos MAYOR PAR_IZQ CADENA PAR_DER
+        {
+            $$ = {
+                tipo: 'texto',
+                estilos: $3,
+                contenido: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+imagen
+    : IMG PAR_IZQ lista_urls PAR_DER
+        {
+            $$ = {
+                tipo: 'imagen',
+                estilos: [],
+                urls: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | IMG MENOR lista_estilos MAYOR PAR_IZQ lista_urls PAR_DER
+        {
+            $$ = {
+                tipo: 'imagen',
+                estilos: $3,
+                urls: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+lista_urls
+    : lista_urls COMA url_item
+        { $1.push($3); $$ = $1; }
+    | url_item
+        { $$ = [$1]; }
+    ;
+
+url_item
+    : CADENA        { $$ = { tipo: 'literal', valor: $1 }; }
+    | VARIABLE      { $$ = { tipo: 'variable', valor: $1.substring(1) }; }
     ;
