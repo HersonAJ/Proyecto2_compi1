@@ -133,11 +133,14 @@ programa
 lista_componentes
     : lista_componentes componente
         {
-            if ($2 !== null) $1.push($2);
-            $$ = $1;
+            if ($2 !== null) $1.push($2); $$ = $1;
         }
+    | lista_componentes error LLAVE_DER
+        { $$ = $1; }
     | componente
         { $$ = $1 !== null ? [$1] : []; }
+    | error LLAVE_DER
+        { $$ = []; }
     ;
 
 componente
@@ -207,8 +210,16 @@ elementos
             if ($2 !== null) $1.push($2);
             $$ = $1;
         }
+    | elementos error
+        {
+            $$ = $1;
+        }
     | elemento
         { $$ = $1 !== null ? [$1] : []; }
+    | error
+        {
+            $$ = [];
+        }
     ;
 
 elemento

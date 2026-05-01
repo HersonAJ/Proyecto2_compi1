@@ -27,7 +27,6 @@ class GeneradorComp {
                 new ErrorYFERA('Sintactico', lexema, linea, columna, descripcion)
             );
 
-            throw new Error(msg);
         };
         compModulo.parser.parseError = protoParser.parseError;
 
