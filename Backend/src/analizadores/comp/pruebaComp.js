@@ -12,90 +12,10 @@ function probar(titulo, entrada) {
     console.log(JSON.stringify(resultado.errores, null, 2));
 }
 
-/* --- sanity --- */
-probar('1) Sanity: expresion aislada sigue funcionando', `1 + 2 * 3`);
+/* --- sanity de fases anteriores --- */
+probar('1) Sanity: expresion aislada', `1 + 2 * 3`);
 
-/* --- IF --- */
-probar('2) If solo', `
-demo() {
-    if ( $a == "hola" ) {
-        T("hola")
-    }
-}
-`);
-
-probar('3) If con else final', `
-demo() {
-    if ( $x > 10 ) {
-        T("grande")
-    } else {
-        T("chico")
-    }
-}
-`);
-
-probar('4) If con else cond y else final', `
-demo() {
-    if ( $x == "a" ) {
-        T("uno")
-    } else ( $x == "b" && $valido ) {
-        T("dos")
-    } else {
-        T("otro")
-    }
-}
-`);
-
-/* --- SWITCH --- */
-probar('5) Switch con casos y default', `
-demo() {
-    Switch( $opcion ) {
-        case "a" {
-            T("opcion a")
-        },
-        case "b" {
-            T("opcion b")
-        },
-        default {
-            T("ninguna")
-        }
-    }
-}
-`);
-
-probar('6) Switch sin default, valores numericos', `
-demo() {
-    Switch( $codigo ) {
-        case 1 {
-            T("uno")
-        },
-        case 2 {
-            T("dos")
-        }
-    }
-}
-`);
-
-/* --- FOR --- */
-probar('7) For each sencillo', `
-demo() {
-    for each ( $pkm : $equipo ) {
-        T("Tengo a $pkm")
-    }
-}
-`);
-
-probar('8) For complejo con track y empty', `
-demo() {
-    for ( $pkm : $equipo, $stat : $stats ) track $idx {
-        T("Pokemon $pkm con stat $stat")
-    } empty {
-        T("equipo vacio")
-    }
-}
-`);
-
-probar('9) For complejo sin empty', `
+probar('2) Sanity: for complejo', `
 demo() {
     for ( $a : $arr ) track $i {
         T("$a")
@@ -103,32 +23,54 @@ demo() {
 }
 `);
 
-/* --- ANIDACION --- */
-probar('10) If dentro de For', `
+/* --- IF actualizado: else if con la palabra "if" --- */
+probar('3) If con else if y else final', `
 demo() {
-    for each ( $p : $lista ) {
-        if ( $p == "raro" ) {
-            T("encontrado")
-        } else {
-            T("normal")
-        }
+    if ( $x == "a" ) {
+        T("uno")
+    } else if ( $x == "b" && $valido ) {
+        T("dos")
+    } else if ( $x == "c" ) {
+        T("tres")
+    } else {
+        T("otro")
     }
 }
 `);
 
-probar('11) Switch dentro de seccion con if dentro de un caso', `
-demo() {
-    [
-        Switch( $tipo ) {
-            case "fuego" {
-                if ( $nivel > 50 ) {
-                    T("fuego fuerte")
-                }
-            },
-            default {
-                T("desconocido")
-            }
-        }
-    ]
+/* --- URLs con expresiones --- */
+probar('4) URL literal sola', `
+foto() {
+    IMG("foto.png")
+}
+`);
+
+probar('5) URL como variable simple', `
+foto(string $url) {
+    IMG($url)
+}
+`);
+
+probar('6) URL como acceso a array', `
+galeria(string $urls) {
+    IMG($urls[1])
+}
+`);
+
+probar('7) URL con expresion (indice computado)', `
+galeria(string $urls, int $i) {
+    IMG($urls[$i + 1])
+}
+`);
+
+probar('8) Carrusel mezclando literal, variable y acceso', `
+galeria(string $url_3, string $urls) {
+    IMG<grande>(
+        "https://a.com/1.png",
+        "https://b.com/2.png",
+        $url_3,
+        $urls[1],
+        "url_n"
+    )
 }
 `);

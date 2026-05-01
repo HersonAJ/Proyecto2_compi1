@@ -325,8 +325,12 @@ lista_urls
     ;
 
 url_item
-    : CADENA        { $$ = { tipo: 'literal', valor: $1 }; }
-    | VARIABLE      { $$ = { tipo: 'variable', valor: $1.substring(1) }; }
+    : expresion
+        {
+            $$ = $1.tipo === 'cadena'
+                ? { tipo: 'literal', valor: $1.valor }
+                : { tipo: 'expresion', valor: $1 };
+        }
     ;
 
 formulario
@@ -661,12 +665,12 @@ lista_else
     ;
 
 else_con_cond
-    : ELSE PAR_IZQ expresion PAR_DER LLAVE_IZQ elementos_opt LLAVE_DER
+    : ELSE IF PAR_IZQ expresion PAR_DER LLAVE_IZQ elementos_opt LLAVE_DER
         {
             $$ = {
                 tipo: 'else_if',
-                condicion: $3,
-                elementos: $6,
+                condicion: $4,
+                elementos: $7,
                 linea: @1.first_line,
                 columna: @1.first_column + 1
             };
