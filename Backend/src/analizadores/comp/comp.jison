@@ -15,6 +15,9 @@
                 sintacticos: erroresSintacticos
             };
         };
+        exports.registrarErrorSintactico = function (err) {
+            erroresSintacticos.push(err);
+        };
     }
 %}
 

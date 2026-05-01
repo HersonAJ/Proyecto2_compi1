@@ -6,71 +6,69 @@ function probar(titulo, entrada) {
     console.log('  ' + titulo);
     console.log('========================================');
     const resultado = generador.analizar(entrada);
-    console.log('AST:');
-    console.log(JSON.stringify(resultado.ast, null, 2));
+    console.log('AST length:', Array.isArray(resultado.ast) ? resultado.ast.length : 'N/A');
     console.log('Errores:');
     console.log(JSON.stringify(resultado.errores, null, 2));
 }
 
-/* --- sanity de fases anteriores --- */
-probar('1) Sanity: expresion aislada', `1 + 2 * 3`);
+/* --- sanity --- */
+probar('1) Sin errores: componente valido', `
+saludo() {
+    T("hola")
+}
+`);
 
-probar('2) Sanity: for complejo', `
-demo() {
-    for ( $a : $arr ) track $i {
-        T("$a")
+/* --- Errores lexicos (ya funcionaban antes) --- */
+probar('2) Solo error lexico', `
+saludo() {
+    [
+        &
+    ]
+}
+`);
+
+/* --- Errores sintacticos --- */
+probar('3) Componente sin parentesis de apertura', `
+saludo {
+    T("hola")
+}
+`);
+
+probar('4) Falta paren cierre del componente', `
+saludo( {
+    T("hola")
+}
+`);
+
+probar('5) Texto sin parentesis', `
+saludo() {
+    T "hola"
+}
+`);
+
+probar('6) If sin condicion', `
+saludo() {
+    if () {
+        T("hola")
     }
 }
 `);
 
-/* --- IF actualizado: else if con la palabra "if" --- */
-probar('3) If con else if y else final', `
-demo() {
-    if ( $x == "a" ) {
-        T("uno")
-    } else if ( $x == "b" && $valido ) {
-        T("dos")
-    } else if ( $x == "c" ) {
-        T("tres")
-    } else {
-        T("otro")
+probar('7) Switch case sin valor', `
+saludo() {
+    Switch ($x) {
+        case {
+            T("hola")
+        }
     }
 }
 `);
 
-/* --- URLs con expresiones --- */
-probar('4) URL literal sola', `
-foto() {
-    IMG("foto.png")
-}
-`);
-
-probar('5) URL como variable simple', `
-foto(string $url) {
-    IMG($url)
-}
-`);
-
-probar('6) URL como acceso a array', `
-galeria(string $urls) {
-    IMG($urls[1])
-}
-`);
-
-probar('7) URL con expresion (indice computado)', `
-galeria(string $urls, int $i) {
-    IMG($urls[$i + 1])
-}
-`);
-
-probar('8) Carrusel mezclando literal, variable y acceso', `
-galeria(string $url_3, string $urls) {
-    IMG<grande>(
-        "https://a.com/1.png",
-        "https://b.com/2.png",
-        $url_3,
-        $urls[1],
-        "url_n"
-    )
+/* --- Mezcla de error lexico y sintactico --- */
+probar('8) Lexico + sintactico (esperamos ambos)', `
+saludo() {
+    [
+        & T "hola"
+    ]
 }
 `);
