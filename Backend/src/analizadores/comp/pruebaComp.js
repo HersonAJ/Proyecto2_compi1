@@ -6,114 +6,127 @@ function probar(titulo, entrada) {
     console.log('  ' + titulo);
     console.log('========================================');
     const resultado = generador.analizar(entrada);
-    console.log('Componentes parseados:', Array.isArray(resultado.ast) ? resultado.ast.length : 'N/A');
-    if (Array.isArray(resultado.ast)) {
-        resultado.ast.forEach(function (c, i) {
-            console.log('  [' + i + '] ' + c.nombre + ' (elementos: ' + c.elementos.length + ')');
-        });
-    }
-    console.log('Errores totales:', resultado.errores.length);
+    console.log('Exito:', resultado.exito);
+    console.log('Errores:');
     console.log(JSON.stringify(resultado.errores, null, 2));
 }
 
-/* === SUITE 1: archivo completo, valido === */
-probar('A) Archivo valido completo', `
-header() {
-    <azul>[
-        T<grande>("Bienvenido")
-        IMG("logo.png")
-    ]
+/* === sanity de fases anteriores === */
+probar('A) Sanity: form valido sin SUBMIT', `
+demo() {
+    FORM {
+        INPUT_TEXT(id: "name", label: "Nombre", value: "")
+        INPUT_NUMBER(id: "edad", label: "Edad", value: 18)
+    }
 }
+`);
 
-card(int $id, string $nombre) {
-    [
-        T("Pokemon $nombre")
-        if ( $id > 100 ) {
-            T("legendario")
-        } else {
-            T("normal")
-        }
-        for each ( $stat : $stats ) {
-            T("stat $stat")
-        }
-    ]
-}
-
-formulario() {
-    FORM<estilo> {
-        INPUT_TEXT(id: "n", label: "Nombre", value: "")
-        INPUT_NUMBER(id: "e", label: "Edad", value: 18)
+probar('B) Form valido con SUBMIT y referencias correctas', `
+demo(function $callback) {
+    FORM {
+        INPUT_TEXT(id: "name", label: "Nombre", value: "")
+        INPUT_BOOL(id: "valid", label: "Valido?", value: true)
     } SUBMIT {
         label: "Enviar",
-        function: $callback(@n, @e)
+        function: $callback(@name, @valid)
     }
 }
 `);
 
-/* === SUITE 2: archivo con multiples errores mezclados === */
-probar('B) Archivo realista con varios errores', `
-componenteValido() {
-    T("este componente esta bien")
-    IMG("ok.png")
-}
-
-componenteConErroresInternos() {
-    T "sin parens aqui"
-    IMG("buena.png")
-    T<estilo>(missing close
-    if () {
-        T("sin condicion")
-    }
-    T("este si esta bien")
-}
-
-otroValido() {
-    [
-        T("seccion ok")
-    ]
-}
-
-componenteRotoCompleto( {
-    T("nunca se va a parsear")
-}
-
-ultimoValido() {
-    T("yo si soy valido")
-}
-`);
-
-/* === SUITE 3: errores lexicos mezclados con sintacticos === */
-probar('C) Errores lexicos y sintacticos juntos', `
-mixto() {
-    [
-        & 
-        T("hola")
-        @ 
-        IMG("imagen.png")
-        T sin_parens
-        $variable_suelta
-    ]
-}
-
-despues() {
-    T("este componente sigue siendo valido")
-}
-`);
-
-/* === SUITE 4: stress de recuperacion en bloques anidados === */
-probar('D) Errores dentro de if y for', `
+/* === errores de IDs duplicados === */
+probar('C) IDs duplicados en mismo FORM', `
 demo() {
-    if ( $x > 10 ) {
-        T "sin parens dentro del if"
-        T("este texto esta bien")
-        IMG no_parens
-    } else {
-        T("rama else valida")
+    FORM {
+        INPUT_TEXT(id: "name", label: "uno", value: "")
+        INPUT_NUMBER(id: "name", label: "dos", value: 0)
     }
-    
-    for each ( $a : $arr ) {
-        T "tambien malo"
-        T("pero este bien")
+}
+`);
+
+probar('D) Tres inputs, dos con mismo id', `
+demo() {
+    FORM {
+        INPUT_TEXT(id: "x", label: "x", value: "")
+        INPUT_NUMBER(id: "y", label: "y", value: 0)
+        INPUT_BOOL(id: "x", label: "x2", value: true)
+    }
+}
+`);
+
+probar('E) IDs duplicados en branches de un if dentro del FORM', `
+demo(boolean $b) {
+    FORM {
+        INPUT_TEXT(id: "name", label: "fuera del if", value: "")
+        if ( $b ) {
+            INPUT_NUMBER(id: "name", label: "rama if", value: 0)
+        } else {
+            INPUT_BOOL(id: "name", label: "rama else", value: true)
+        }
+    }
+}
+`);
+
+/* === referencias @id invalidas === */
+probar('F) Submit con referencia @id que no existe', `
+demo(function $callback) {
+    FORM {
+        INPUT_TEXT(id: "name", label: "n", value: "")
+    } SUBMIT {
+        label: "Enviar",
+        function: $callback(@inexistente)
+    }
+}
+`);
+
+probar('G) Submit con multiples referencias, una invalida', `
+demo(function $callback) {
+    FORM {
+        INPUT_TEXT(id: "name", label: "n", value: "")
+        INPUT_BOOL(id: "valid", label: "v", value: true)
+    } SUBMIT {
+        label: "Enviar",
+        function: $callback(@name, @noexiste, @valid)
+    }
+}
+`);
+
+probar('H) Submit con referencia a input que esta en bloque anidado', `
+demo(function $callback, boolean $b) {
+    FORM {
+        if ( $b ) {
+            INPUT_TEXT(id: "dentro", label: "dentro", value: "")
+        }
+    } SUBMIT {
+        label: "Enviar",
+        function: $callback(@dentro)
+    }
+}
+`);
+
+/* === forms anidados (un form dentro de otro componente, no anidados directos) === */
+probar('I) Dos forms diferentes, IDs no colisionan', `
+form1() {
+    FORM {
+        INPUT_TEXT(id: "name", label: "f1", value: "")
+    }
+}
+
+form2() {
+    FORM {
+        INPUT_TEXT(id: "name", label: "f2", value: "")
+    }
+}
+`);
+
+/* === mezcla de errores === */
+probar('J) Form con id duplicado Y referencia invalida', `
+demo(function $callback) {
+    FORM {
+        INPUT_TEXT(id: "x", label: "uno", value: "")
+        INPUT_NUMBER(id: "x", label: "dos", value: 0)
+    } SUBMIT {
+        label: "Enviar",
+        function: $callback(@inexistente)
     }
 }
 `);

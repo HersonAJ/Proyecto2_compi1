@@ -6,7 +6,6 @@ class ControladorComp {
         this.analizar = this.analizar.bind(this);
     }
 
-    //post
     analizar(req, res) {
         try {
             const { codigo } = req.body;
@@ -20,7 +19,9 @@ class ControladorComp {
             const resultado = this.generador.analizar(codigo);
 
             return res.status(200).json({
+                exito: resultado.exito,
                 ast: resultado.ast,
+                tablaSimbolos: resultado.tablaSimbolos,
                 errores: resultado.errores
             });
         } catch (e) {
