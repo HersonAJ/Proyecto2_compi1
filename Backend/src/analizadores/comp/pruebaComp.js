@@ -7,126 +7,126 @@ function probar(titulo, entrada) {
     console.log('========================================');
     const resultado = generador.analizar(entrada);
     console.log('Exito:', resultado.exito);
-    console.log('Errores:');
-    console.log(JSON.stringify(resultado.errores, null, 2));
+    if (resultado.errores.length > 0) {
+        console.log('Errores:');
+        console.log(JSON.stringify(resultado.errores, null, 2));
+        return;
+    }
+    console.log('HTML:');
+    console.log(resultado.html);
 }
 
-/* === sanity de fases anteriores === */
-probar('A) Sanity: form valido sin SUBMIT', `
-demo() {
+/* === Sanity de T1 === */
+probar('A) Sanity: texto + imagen', `
+panel() {
+    [
+        T("hola")
+        IMG("logo.png")
+    ]
+}
+`);
+
+/* === Formularios === */
+probar('B) Form simple sin SUBMIT', `
+login() {
     FORM {
+        INPUT_TEXT(id: "user", label: "Usuario", value: "")
+    }
+}
+`);
+
+probar('C) Form con tres tipos de input', `
+registro() {
+    FORM<estilo-form> {
         INPUT_TEXT(id: "name", label: "Nombre", value: "")
         INPUT_NUMBER(id: "edad", label: "Edad", value: 18)
+        INPUT_BOOL(id: "acepto", label: "Acepto", value: true)
     }
 }
 `);
 
-probar('B) Form valido con SUBMIT y referencias correctas', `
-demo(function $callback) {
+probar('D) Form con SUBMIT', `
+contacto() {
     FORM {
-        INPUT_TEXT(id: "name", label: "Nombre", value: "")
-        INPUT_BOOL(id: "valid", label: "Valido?", value: true)
+        INPUT_TEXT(id: "email", label: "Correo", value: "")
     } SUBMIT {
-        label: "Enviar",
-        function: $callback(@name, @valid)
+        label: "Enviar"
     }
 }
 `);
 
-/* === errores de IDs duplicados === */
-probar('C) IDs duplicados en mismo FORM', `
-demo() {
-    FORM {
-        INPUT_TEXT(id: "name", label: "uno", value: "")
-        INPUT_NUMBER(id: "name", label: "dos", value: 0)
+/* === If/else === */
+probar('E) If solo', `
+demo(int $x) {
+    if ( $x > 10 ) {
+        T("grande")
     }
 }
 `);
 
-probar('D) Tres inputs, dos con mismo id', `
-demo() {
-    FORM {
-        INPUT_TEXT(id: "x", label: "x", value: "")
-        INPUT_NUMBER(id: "y", label: "y", value: 0)
-        INPUT_BOOL(id: "x", label: "x2", value: true)
+probar('F) If con else if y else', `
+demo(int $x) {
+    if ( $x > 100 ) {
+        T("muy grande")
+    } else if ( $x > 10 ) {
+        T("mediano")
+    } else {
+        T("chico")
     }
 }
 `);
 
-probar('E) IDs duplicados en branches de un if dentro del FORM', `
-demo(boolean $b) {
-    FORM {
-        INPUT_TEXT(id: "name", label: "fuera del if", value: "")
-        if ( $b ) {
-            INPUT_NUMBER(id: "name", label: "rama if", value: 0)
+/* === Switch === */
+probar('G) Switch con casos y default', `
+demo(int $opt) {
+    Switch( $opt ) {
+        case 1 {
+            T("uno")
+        },
+        case 2 {
+            T("dos")
+        },
+        default {
+            T("otro")
+        }
+    }
+}
+`);
+
+/* === For === */
+probar('H) For each', `
+demo(string $arr) {
+    for each ( $item : $arr ) {
+        T("Item: $item")
+    }
+}
+`);
+
+probar('I) For complejo con empty', `
+demo(string $arr1, string $arr2) {
+    for ( $a : $arr1, $b : $arr2 ) track $idx {
+        T("Item $a y $b en idx $idx")
+    } empty {
+        T("vacio")
+    }
+}
+`);
+
+/* === Mezcla profunda === */
+probar('J) Form dentro de seccion con if dentro', `
+pagina(boolean $logueado, function $cb) {
+    <fondo>[
+        T("Bienvenido")
+        if ( $logueado ) {
+            FORM {
+                INPUT_TEXT(id: "msg", label: "Mensaje", value: "")
+            } SUBMIT {
+                label: "Enviar",
+                function: $cb(@msg)
+            }
         } else {
-            INPUT_BOOL(id: "name", label: "rama else", value: true)
+            T("Por favor inicia sesion")
         }
-    }
-}
-`);
-
-/* === referencias @id invalidas === */
-probar('F) Submit con referencia @id que no existe', `
-demo(function $callback) {
-    FORM {
-        INPUT_TEXT(id: "name", label: "n", value: "")
-    } SUBMIT {
-        label: "Enviar",
-        function: $callback(@inexistente)
-    }
-}
-`);
-
-probar('G) Submit con multiples referencias, una invalida', `
-demo(function $callback) {
-    FORM {
-        INPUT_TEXT(id: "name", label: "n", value: "")
-        INPUT_BOOL(id: "valid", label: "v", value: true)
-    } SUBMIT {
-        label: "Enviar",
-        function: $callback(@name, @noexiste, @valid)
-    }
-}
-`);
-
-probar('H) Submit con referencia a input que esta en bloque anidado', `
-demo(function $callback, boolean $b) {
-    FORM {
-        if ( $b ) {
-            INPUT_TEXT(id: "dentro", label: "dentro", value: "")
-        }
-    } SUBMIT {
-        label: "Enviar",
-        function: $callback(@dentro)
-    }
-}
-`);
-
-/* === forms anidados (un form dentro de otro componente, no anidados directos) === */
-probar('I) Dos forms diferentes, IDs no colisionan', `
-form1() {
-    FORM {
-        INPUT_TEXT(id: "name", label: "f1", value: "")
-    }
-}
-
-form2() {
-    FORM {
-        INPUT_TEXT(id: "name", label: "f2", value: "")
-    }
-}
-`);
-
-/* === mezcla de errores === */
-probar('J) Form con id duplicado Y referencia invalida', `
-demo(function $callback) {
-    FORM {
-        INPUT_TEXT(id: "x", label: "uno", value: "")
-        INPUT_NUMBER(id: "x", label: "dos", value: 0)
-    } SUBMIT {
-        label: "Enviar",
-        function: $callback(@inexistente)
-    }
+    ]
 }
 `);

@@ -1,6 +1,7 @@
 const compModulo = require('./comp');
 const ErrorYFERA = require('../errores/ErrorYFERA');
 const AnalizadorSemanticoComp = require('./semantico/AnalizadorSemanticoComp');
+const TraductorComp = require('./traductor/TraductorComp');
 
 class GeneradorComp {
     analizar(entrada) {
@@ -61,10 +62,22 @@ class GeneradorComp {
             };
         });
 
+        // Traduccion a HTML (solo si no hay errores semanticos)
+        var html = '';
+        var componentes = {};
+        if (resultadoSemantico.errores.length === 0 && Array.isArray(ast) && ast.length > 0) {
+            const traductor = new TraductorComp();
+            const resultadoTraduccion = traductor.traducir(ast);
+            html = resultadoTraduccion.html;
+            componentes = resultadoTraduccion.componentes;
+        }
+
         return {
             exito: todosErrores.length === 0,
             ast: ast,
             tablaSimbolos: resultadoSemantico.tabla,
+            html: html,
+            componentes: componentes,
             errores: todosErrores
         };
     }

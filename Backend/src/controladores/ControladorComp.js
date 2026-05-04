@@ -22,6 +22,8 @@ class ControladorComp {
                 exito: resultado.exito,
                 ast: resultado.ast,
                 tablaSimbolos: resultado.tablaSimbolos,
+                html: resultado.html,
+                componentes: resultado.componentes,
                 errores: resultado.errores
             });
         } catch (e) {
