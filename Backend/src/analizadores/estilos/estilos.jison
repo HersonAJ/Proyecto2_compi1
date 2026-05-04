@@ -2,6 +2,7 @@
     var ErrorYFERA = require('../errores/ErrorYFERA');
     var erroresLexicos = [];
     var erroresSintacticos = [];
+    var _posUltimoToken = { lexema: '', linea: 0, columna: 0 };
 
     function marcarToken(yy, yytext, yylineno, yylloc, tipo) {
         yy._ultimoToken = {
@@ -11,9 +12,24 @@
             tipo: tipo
         };
 
+        _posUltimoToken = {
+            lexema: yytext,
+            linea: yylineno + 1,
+            columna: yylloc.first_column + 1
+        };
+
         if (tipo === 'ENTERO' || tipo === 'VARIABLE' || tipo === 'IDENTIFICADOR') {
             yy._ultimoValor = yy._ultimoToken;
         }
+    }
+
+    if (typeof exports !== 'undefined') {
+        exports.obtenerPosUltimoToken = function() {
+            return _posUltimoToken;
+        };
+        exports.reiniciarPosUltimoToken = function() {
+            _posUltimoToken = { lexema: '', linea: 0, columna: 0 };
+        };
     }
 %}
 
@@ -29,6 +45,7 @@
 "extends"   { marcarToken(yy,yytext,yylineno,yylloc); return 'EXTENDS'; }
 "from"      { marcarToken(yy,yytext,yylineno,yylloc); return 'FROM'; }
 "through"   { marcarToken(yy,yytext,yylineno,yylloc); return 'THROUGH'; }
+"to"        { marcarToken(yy,yytext,yylineno,yylloc); return 'TO'; }
 
 "{"         { marcarToken(yy,yytext,yylineno,yylloc); return 'LLAVE_IZQ'; }
 "}"         { marcarToken(yy,yytext,yylineno,yylloc); return 'LLAVE_DER'; }
@@ -152,6 +169,19 @@ bucle_for
             variable: $2,
             desde: Number($4),
             hasta: Number($6),
+            inclusivo: true,
+            cuerpo: $8,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | FOR_LOOP VARIABLE FROM ENTERO TO ENTERO LLAVE_IZQ cuerpo_for LLAVE_DER {
+        $$ = {
+            tipo: 'for',
+            variable: $2,
+            desde: Number($4),
+            hasta: Number($6),
+            inclusivo: false,
             cuerpo: $8,
             linea: @1.first_line,
             columna: @1.first_column + 1
@@ -165,7 +195,7 @@ bucle_for
                 info?.lexema || '',
                 info?.linea,
                 info?.columna,
-                'Error en el bucle @for. Se esperaba "@for $var from n through n { ... }"'
+                'Error en el bucle @for. Se esperaba "@for $var from n through n { ... }" o "@for $var from n to n { ... }"'
             )
         );
         $$ = null;
@@ -183,6 +213,16 @@ estilo_for
             tipo: 'estilo',
             nombre: $1,
             propiedades: $3,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+    | nombre_for EXTENDS IDENTIFICADOR LLAVE_IZQ propiedades LLAVE_DER {
+        $$ = {
+            tipo: 'estilo',
+            nombre: $1,
+            extiende: $3,
+            propiedades: $5,
             linea: @1.first_line,
             columna: @1.first_column + 1
         };

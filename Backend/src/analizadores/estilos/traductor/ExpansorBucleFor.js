@@ -4,12 +4,14 @@ class ExpansorBucleFor {
     expandir(bucle) {
         // Genera una lista plana de estilos a partir de un nodo @for
         var estilosExpandidos = [];
+        var esInclusivo = bucle.inclusivo !== false;
+        var limite = esInclusivo ? bucle.hasta : bucle.hasta - 1;
 
         if (!bucle || !Array.isArray(bucle.cuerpo)) {
             return estilosExpandidos;
         }
 
-        for (var i = bucle.desde; i <= bucle.hasta; i++) {
+        for (var i = bucle.desde; i <= limite; i++) {
             var contextoVariables = {};
             contextoVariables[bucle.variable] = i;
 
@@ -73,7 +75,7 @@ class ExpansorBucleFor {
                 return valor; // Si falla, dejarlo tal cual
             }
         }
-        // Si es entero/decimal pero podria ser una expresion suelta
+        
         if (valor.tipo === 'entero' || valor.tipo === 'decimal') {
             return valor;
         }
