@@ -1,0 +1,88 @@
+.panel {
+    height: 100%;
+    background-color: #0f172a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tabs {
+    height: 32px;
+    background-color: #1e293b;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-right: 1px solid #334155;
+    user-select: none;
+}
+
+.tab:hover {
+    color: #cbd5e1;
+}
+
+.tab.activo {
+    background-color: #0f172a;
+    color: #e5e7eb;
+    border-bottom: 2px solid #60a5fa;
+}
+
+/* === EDITOR (textarea + pre superpuestos) === */
+
+.editor {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.pre,
+.area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre;
+    word-wrap: normal;
+    overflow: auto;
+    tab-size: 4;
+}
+
+.pre {
+    color: #e5e7eb;
+    background: transparent;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.area {
+    background: transparent;
+    color: transparent;
+    caret-color: #e5e7eb;
+    border: none;
+    outline: none;
+    resize: none;
+    z-index: 2;
+}
+
+/* === COLORES DE TOKENS === */
+
+:host ::ng-deep .tok-reservada { color: #c084fc; }    /* morado */
+:host ::ng-deep .tok-variable  { color: #ffffff; }    /* blanco */
+:host ::ng-deep .tok-cadena    { color: #fb923c; }    /* naranja */
+:host ::ng-deep .tok-literal   { color: #38bdf8; }    /* celeste */
+:host ::ng-deep .tok-operador  { color: #4ade80; }    /* verde */
+:host ::ng-deep .tok-agrupador { color: #60a5fa; }    /* azul */
+:host ::ng-deep .tok-comentario { color: #64748b; font-style: italic; }

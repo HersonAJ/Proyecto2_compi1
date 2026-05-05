@@ -1,0 +1,59 @@
+.barra {
+    height: 48px;
+    background-color: #1e293b;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.marca {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #60a5fa;
+    letter-spacing: 0.5px;
+}
+
+.subtitulo {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.boton {
+    background: transparent;
+    color: #cbd5e1;
+    border: 1px solid #475569;
+    padding: 0.4rem 0.85rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.boton:hover {
+    background: #334155;
+    color: #fff;
+}
+
+.boton.primario {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+.boton.primario:hover {
+    background: #1d4ed8;
+}

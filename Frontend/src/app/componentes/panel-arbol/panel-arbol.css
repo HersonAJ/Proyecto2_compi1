@@ -1,0 +1,46 @@
+.panel {
+    height: 100%;
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.encabezado {
+    height: 32px;
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #334155;
+}
+
+.icono {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.4rem;
+}
+
+.icono:hover {
+    color: #fff;
+}
+
+.contenido {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+}
+
+.vacio {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-style: italic;
+}

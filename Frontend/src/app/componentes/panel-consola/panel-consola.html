@@ -1,0 +1,23 @@
+<div class="panel">
+    <div class="tabs">
+        <button
+            class="tab"
+            [class.activo]="tabActiva() === 'errores'"
+            (click)="cambiarTab('errores')">
+            Errores
+        </button>
+        <button
+            class="tab"
+            [class.activo]="tabActiva() === 'sql'"
+            (click)="cambiarTab('sql')">
+            Consola SQL
+        </button>
+    </div>
+    <div class="contenido">
+        @if (tabActiva() === 'errores') {
+            <p class="vacio">No hay errores.</p>
+        } @else {
+            <p class="vacio">Consola SQL aun no implementada.</p>
+        }
+    </div>
+</div>

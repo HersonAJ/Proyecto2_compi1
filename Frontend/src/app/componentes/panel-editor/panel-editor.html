@@ -1,0 +1,27 @@
+<div class="panel">
+    <div class="tabs">
+        <button
+            class="tab"
+            [class.activo]="lenguaje() === 'styles'"
+            (click)="cambiarLenguaje('styles')">
+            archivo.styles
+        </button>
+        <button
+            class="tab"
+            [class.activo]="lenguaje() === 'comp'"
+            (click)="cambiarLenguaje('comp')">
+            archivo.comp
+        </button>
+    </div>
+
+    <div class="editor">
+        <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
+        <textarea
+            #area
+            class="area"
+            spellcheck="false"
+            [value]="codigo()"
+            (input)="onInput($event)"
+            (scroll)="onScroll()"></textarea>
+    </div>
+</div>
