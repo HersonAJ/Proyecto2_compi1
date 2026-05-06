@@ -1,7 +1,9 @@
 const express = require('express');
-const cors = require('cors')
+const cors = require('cors');
+
 const rutasComp = require('./rutas/rutasComp');
 const rutasEstilos = require('./rutas/rutasEstilos');
+const rutasWorkspace = require('./rutas/rutasWorkspace');
 
 const app = express();
 const PUERTO = 3000;
@@ -11,13 +13,14 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
 //ruta para las pruebas
-app.get('/api/estado', (req, res) =>{
-    res.json({ mensaje: 'Servidor YFERA activo', estado: 'Ok'});
+app.get('/api/estado', (req, res) => {
+    res.json({ mensaje: 'Servidor YFERA activo', estado: 'Ok' });
 });
 
 // Rutas de los analizadores
 app.use('/api/comp', rutasComp);
 app.use('/api/estilos', rutasEstilos);
+app.use('/api/workspace', rutasWorkspace);
 
 // 404 para rutas no definidas
 app.use((req, res) => {

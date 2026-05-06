@@ -1,15 +1,19 @@
-<div class="layout">
-    <app-barra-superior
-        class="layout-barra"
-        (analizarSolicitado)="onAnalizar()"
-        (limpiarSolicitado)="onLimpiar()">
-    </app-barra-superior>
+@if (!hayProyecto()) {
+    <app-selector-proyecto></app-selector-proyecto>
+} @else {
+    <div class="layout">
+        <app-barra-superior
+            class="layout-barra"
+            (analizarSolicitado)="onAnalizar()"
+            (limpiarSolicitado)="onLimpiar()">
+        </app-barra-superior>
 
-    <div class="layout-medio">
-        <app-panel-arbol class="layout-arbol"></app-panel-arbol>
-        <app-panel-editor #editor class="layout-editor"></app-panel-editor>
-        <app-panel-vista class="layout-vista"></app-panel-vista>
+        <div class="layout-medio">
+            <app-panel-arbol class="layout-arbol"></app-panel-arbol>
+            <app-panel-editor #editor class="layout-editor"></app-panel-editor>
+            <app-panel-vista class="layout-vista"></app-panel-vista>
+        </div>
+
+        <app-panel-consola class="layout-consola"></app-panel-consola>
     </div>
-
-    <app-panel-consola class="layout-consola"></app-panel-consola>
-</div>
+}

@@ -1,0 +1,56 @@
+<div class="contenedor">
+    <div class="card">
+        <header class="encabezado">
+            <h1>YFERA Framework</h1>
+            <p class="subtitulo">Selecciona un proyecto para comenzar</p>
+        </header>
+
+        @if (mensajeError()) {
+            <div class="error-banner">{{ mensajeError() }}</div>
+        }
+
+        <section class="seccion">
+            <h2>Crear nuevo proyecto</h2>
+            <div class="form-crear">
+                <input
+                    type="text"
+                    class="input"
+                    placeholder="nombre-del-proyecto"
+                    [ngModel]="nuevoNombre()"
+                    (ngModelChange)="onNombreChange($event)"
+                    (keyup.enter)="crearProyecto()" />
+                <button class="boton primario" (click)="crearProyecto()">Crear</button>
+            </div>
+            <p class="ayuda">Solo letras, numeros, guiones y guion bajo.</p>
+        </section>
+
+        <section class="seccion">
+            <div class="seccion-encabezado">
+                <h2>Proyectos existentes</h2>
+                <button class="boton secundario" (click)="recargar()" [disabled]="cargando()">
+                    {{ cargando() ? 'Cargando...' : 'Recargar' }}
+                </button>
+            </div>
+
+            @if (cargando()) {
+                <p class="vacio">Cargando proyectos...</p>
+            } @else if (proyectos().length === 0) {
+                <p class="vacio">No hay proyectos creados todavia. Crea uno arriba para comenzar.</p>
+            } @else {
+                <ul class="lista">
+                    @for (p of proyectos(); track p) {
+                        <li class="proyecto" (click)="abrirProyecto(p)">
+                            <span class="nombre">{{ p }}</span>
+                            <button
+                                class="boton-eliminar"
+                                (click)="eliminarProyecto(p, $event)"
+                                title="Eliminar proyecto">
+                                Eliminar
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>
