@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { BarraSuperior } from './componentes/barra-superior/barra-superior';
 import { PanelArbol } from './componentes/panel-arbol/panel-arbol';
 import { PanelEditor } from './componentes/panel-editor/panel-editor';
@@ -17,4 +17,14 @@ import { PanelConsola } from './componentes/panel-consola/panel-consola';
     templateUrl: './app.html',
     styleUrl: './app.css'
 })
-export class App {}
+export class App {
+    private readonly editorRef = viewChild<PanelEditor>('editor');
+
+    onAnalizar(): void {
+        this.editorRef()?.analizar();
+    }
+
+    onLimpiar(): void {
+        this.editorRef()?.limpiarAnalisis();
+    }
+}

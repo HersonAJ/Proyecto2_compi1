@@ -23,6 +23,9 @@
     font-size: 0.8rem;
     cursor: pointer;
     border-right: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .tab:hover {
@@ -35,16 +38,85 @@
     border-bottom: 2px solid #60a5fa;
 }
 
+.badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 8px;
+    min-width: 1rem;
+    text-align: center;
+}
+
+.indicador-analizando {
+    margin-left: auto;
+    margin-right: 1rem;
+    align-self: center;
+    font-size: 0.75rem;
+    color: #60a5fa;
+    font-style: italic;
+}
+
 .contenido {
     flex: 1;
     overflow-y: auto;
-    padding: 0.75rem 1rem;
+    padding: 0;
     font-family: 'Courier New', monospace;
     font-size: 0.85rem;
-    color: #cbd5e1;
 }
 
 .vacio {
     color: #64748b;
     font-style: italic;
+    padding: 0.75rem 1rem;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla thead th {
+    position: sticky;
+    top: 0;
+    background-color: #0f172a;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+}
+
+.tabla tbody tr {
+    border-bottom: 1px solid #1e293b;
+}
+
+.tabla tbody tr:hover {
+    background-color: #2a3a52;
+}
+
+.tabla td {
+    padding: 0.4rem 0.75rem;
+    color: #cbd5e1;
+}
+
+.lexema {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+.fila-lexico td:nth-child(4) {
+    color: #f87171;
+}
+
+.fila-sintactico td:nth-child(4),
+.fila-sintacticofatal td:nth-child(4) {
+    color: #fb923c;
+}
+
+.fila-semantico td:nth-child(4) {
+    color: #a78bfa;
 }

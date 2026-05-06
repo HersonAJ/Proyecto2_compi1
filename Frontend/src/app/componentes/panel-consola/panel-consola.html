@@ -5,6 +5,9 @@
             [class.activo]="tabActiva() === 'errores'"
             (click)="cambiarTab('errores')">
             Errores
+            @if (cantidadErrores() > 0) {
+                <span class="badge">{{ cantidadErrores() }}</span>
+            }
         </button>
         <button
             class="tab"
@@ -12,10 +15,39 @@
             (click)="cambiarTab('sql')">
             Consola SQL
         </button>
+        @if (analizando()) {
+            <span class="indicador-analizando">Analizando...</span>
+        }
     </div>
+
     <div class="contenido">
         @if (tabActiva() === 'errores') {
-            <p class="vacio">No hay errores.</p>
+            @if (errores().length === 0) {
+                <p class="vacio">No hay errores.</p>
+            } @else {
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Lexema</th>
+                            <th>Linea</th>
+                            <th>Columna</th>
+                            <th>Tipo</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (err of errores(); track $index) {
+                            <tr [class]="'fila-' + err.tipo.toLowerCase()">
+                                <td class="lexema">{{ err.lexema || '-' }}</td>
+                                <td>{{ err.linea }}</td>
+                                <td>{{ err.columna }}</td>
+                                <td>{{ err.tipo }}</td>
+                                <td>{{ err.mensaje }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         } @else {
             <p class="vacio">Consola SQL aun no implementada.</p>
         }

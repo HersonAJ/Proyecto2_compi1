@@ -1,9 +1,13 @@
 <div class="layout">
-    <app-barra-superior class="layout-barra"></app-barra-superior>
+    <app-barra-superior
+        class="layout-barra"
+        (analizarSolicitado)="onAnalizar()"
+        (limpiarSolicitado)="onLimpiar()">
+    </app-barra-superior>
 
     <div class="layout-medio">
         <app-panel-arbol class="layout-arbol"></app-panel-arbol>
-        <app-panel-editor class="layout-editor"></app-panel-editor>
+        <app-panel-editor #editor class="layout-editor"></app-panel-editor>
         <app-panel-vista class="layout-vista"></app-panel-vista>
     </div>
 
