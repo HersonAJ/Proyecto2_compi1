@@ -240,6 +240,160 @@ main {
     f = 5;
 }
 `
+},
+{
+    nombre: 'If basico',
+    esperaExito: true,
+    codigo: `
+boolean activo = True;
+main {
+    if (activo) {
+        @uno();
+    }
+}
+`
+},
+{
+    nombre: 'If con else if y else',
+    esperaExito: true,
+    codigo: `
+int x = 10;
+main {
+    if (x > 5) {
+        @grande();
+    } else if (x == 5) {
+        @medio();
+    } else {
+        @chico();
+    }
+}
+`
+},
+{
+    nombre: 'If anidado',
+    esperaExito: true,
+    codigo: `
+boolean a = True;
+boolean b = False;
+main {
+    if (a) {
+        if (b) {
+            @ambos();
+        } else {
+            @soloA();
+        }
+    }
+}
+`
+},
+{
+    nombre: 'If con condicion no booleana',
+    esperaExito: false,
+    mensajesEsperados: ['debe ser de tipo boolean'],
+    codigo: `
+int x = 5;
+main {
+    if (x) {
+        @algo();
+    }
+}
+`
+},
+{
+    nombre: 'Switch basico int',
+    esperaExito: true,
+    codigo: `
+int x = 1;
+main {
+    switch (x) {
+        case 1:
+            @uno();
+            break;
+        case 2:
+            @dos();
+            break;
+        default:
+            @otro();
+            break;
+    }
+}
+`
+},
+{
+    nombre: 'Switch con string',
+    esperaExito: true,
+    codigo: `
+string s = "hola";
+main {
+    switch (s) {
+        case "hola":
+            @saludo();
+            break;
+        case "adios":
+            @despedida();
+            break;
+    }
+}
+`
+},
+{
+    nombre: 'Switch con caso de tipo incompatible',
+    esperaExito: false,
+    mensajesEsperados: ['pero el switch es de tipo'],
+    codigo: `
+int x = 1;
+main {
+    switch (x) {
+        case "uno":
+            @algo();
+            break;
+    }
+}
+`
+},
+{
+    nombre: 'Switch con casos duplicados',
+    esperaExito: false,
+    mensajesEsperados: ['ya aparece en otro case'],
+    codigo: `
+int x = 1;
+main {
+    switch (x) {
+        case 1: break;
+        case 1: break;
+    }
+}
+`
+},
+{
+    nombre: 'Switch con expresion booleana (rechazado)',
+    esperaExito: false,
+    mensajesEsperados: ['debe ser numerica o string'],
+    codigo: `
+boolean b = True;
+main {
+    switch (b) {
+        case 1: break;
+    }
+}
+`
+},
+{
+    nombre: 'Else despues de else final',
+    esperaExito: false,
+    mensajesEsperados: ['No se puede tener "else_if" despues de un "else" final'],
+    codigo: `
+boolean a = True;
+main {
+    if (a) {
+        @uno();
+    } else {
+        @dos();
+    } else if (a) {
+        @tres();
+    }
+}
+`
 }
 ];
 

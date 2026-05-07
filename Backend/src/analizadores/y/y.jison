@@ -481,6 +481,8 @@ cuerpo_main
 sentencia_main
     : invocacion_componente     { $$ = $1; }
     | asignacion                { $$ = $1; }
+    | if_stmt                   { $$ = $1; }
+    | switch_stmt               { $$ = $1; }
     ;
 
 invocacion_componente
@@ -527,6 +529,165 @@ asignacion
                 nombre: $1,
                 indice: $3,
                 expresion: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+/* ============== IF / ELSE IF / ELSE ============== */
+
+if_stmt
+    : IF PAR_IZQ expresion PAR_DER LLAVE_IZQ cuerpo_main_opt LLAVE_DER lista_else_opt
+        {
+            $$ = {
+                tipo: 'if',
+                condicion: $3,
+                cuerpo: $6,
+                ramas_else: $8,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+lista_else_opt
+    : lista_else        { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+lista_else
+    : lista_else else_if_clause
+        { $1.push($2); $$ = $1; }
+    | lista_else else_clause
+        { $1.push($2); $$ = $1; }
+    | else_if_clause
+        { $$ = [$1]; }
+    | else_clause
+        { $$ = [$1]; }
+    ;
+
+else_if_clause
+    : ELSE IF PAR_IZQ expresion PAR_DER LLAVE_IZQ cuerpo_main_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'else_if',
+                condicion: $4,
+                cuerpo: $7,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+else_clause
+    : ELSE LLAVE_IZQ cuerpo_main_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'else',
+                cuerpo: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+/* ============== SWITCH / CASE / DEFAULT ============== */
+
+switch_stmt
+    : SWITCH PAR_IZQ expresion PAR_DER LLAVE_IZQ lista_casos_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'switch',
+                expresion: $3,
+                casos: $6.casos,
+                defecto: $6.defecto,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+lista_casos_opt
+    : lista_casos       { $$ = $1; }
+    |                   { $$ = { casos: [], defecto: null }; }
+    ;
+
+lista_casos
+    : lista_casos caso_o_default
+        {
+            if ($2.tipo === 'default') {
+                $1.defecto = $2;
+            } else {
+                $1.casos.push($2);
+            }
+            $$ = $1;
+        }
+    | caso_o_default
+        {
+            if ($1.tipo === 'default') {
+                $$ = { casos: [], defecto: $1 };
+            } else {
+                $$ = { casos: [$1], defecto: null };
+            }
+        }
+    ;
+
+caso_o_default
+    : CASE valor_caso DOS_PUNTOS cuerpo_caso_opt
+        {
+            $$ = {
+                tipo: 'caso',
+                valor: $2,
+                cuerpo: $4,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | DEFAULT DOS_PUNTOS cuerpo_caso_opt
+        {
+            $$ = {
+                tipo: 'default',
+                cuerpo: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+valor_caso
+    : NUMERO_ENTERO     { $$ = { tipo: 'numero_entero', valor: parseInt($1) }; }
+    | NUMERO_DECIMAL    { $$ = { tipo: 'numero_decimal', valor: parseFloat($1) }; }
+    | CADENA            { $$ = { tipo: 'cadena', valor: $1 }; }
+    | MENOS NUMERO_ENTERO   { $$ = { tipo: 'numero_entero', valor: -parseInt($2) }; }
+    | MENOS NUMERO_DECIMAL  { $$ = { tipo: 'numero_decimal', valor: -parseFloat($2) }; }
+    ;
+
+cuerpo_caso_opt
+    : cuerpo_caso       { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+cuerpo_caso
+    : cuerpo_caso sentencia_caso
+        {
+            if ($2 !== null) $1.push($2);
+            $$ = $1;
+        }
+    | sentencia_caso
+        { $$ = $1 !== null ? [$1] : []; }
+    ;
+
+sentencia_caso
+    : sentencia_main        { $$ = $1; }
+    | break_stmt            { $$ = $1; }
+    ;
+
+break_stmt
+    : BREAK PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'break',
                 linea: @1.first_line,
                 columna: @1.first_column + 1
             };

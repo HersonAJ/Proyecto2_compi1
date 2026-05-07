@@ -1,11 +1,10 @@
 const ErrorYFERA = require('../../errores/ErrorYFERA');
+const ValidadorBloques = require('./ValidadorBloques');
 
 class ValidadorMain {
-
     validar(mains, tabla) {
         const errores = [];
 
-        // Debe haber exactamente un main
         if (mains.length === 0) {
             errores.push(new ErrorYFERA(
                 'Semantico',
@@ -30,22 +29,14 @@ class ValidadorMain {
         }
 
         const main = mains[0];
-
-        // Validar cada sentencia del cuerpo
-        for (let i = 0; i < main.cuerpo.length; i++) {
-            const s = main.cuerpo[i];
-            if (s.tipo === 'invocacion_componente') {
-                this._validarInvocacion(s, tabla, errores);
-            } else if (s.tipo === 'asignacion') {
-                this._validarAsignacion(s, tabla, errores);
-            }
-        }
+        const validadorBloques = new ValidadorBloques();
+        const erroresCuerpo = validadorBloques.validarCuerpo(main.cuerpo, tabla, this);
+        errores.push.apply(errores, erroresCuerpo);
 
         return errores;
     }
 
     _validarInvocacion(inv, tabla, errores) {
-        // Validar que cada argumento sea una expresion bien formada (referencias a vars/funciones)
         for (let i = 0; i < inv.argumentos.length; i++) {
             this._validarExpresion(inv.argumentos[i], tabla, errores);
         }
@@ -90,14 +81,9 @@ class ValidadorMain {
             this._validarExpresion(asig.indice, tabla, errores);
         }
 
-        // Validar la expresion del lado derecho
         this._validarExpresion(asig.expresion, tabla, errores);
     }
 
-    /**
-     Recorre la expresion buscando referencias a identificadores y verifica
-     que existan en la tabla
-     */
     _validarExpresion(expr, tabla, errores) {
         if (!expr || typeof expr !== 'object') return;
 
@@ -157,7 +143,6 @@ class ValidadorMain {
             case 'menos_unario':
                 this._validarExpresion(expr.operando, tabla, errores);
                 break;
-            // numero_entero, numero_decimal, cadena, caracter, booleano: literales, no validan nada
         }
     }
 }
