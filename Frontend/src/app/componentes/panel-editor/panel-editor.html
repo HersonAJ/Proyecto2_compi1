@@ -43,6 +43,11 @@
 
     <div class="editor">
         @if (archivoActivo()) {
+            <div class="lineas" #lineas>
+                @for (n of numerosLinea(); track n) {
+                    <div class="num">{{ n }}</div>
+                }
+            </div>
             <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
             <textarea
                 #area

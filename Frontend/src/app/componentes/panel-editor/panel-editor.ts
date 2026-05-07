@@ -49,6 +49,7 @@ export class PanelEditor {
 
     private readonly areaRef = viewChild<ElementRef<HTMLTextAreaElement>>('area');
     private readonly preRef = viewChild<ElementRef<HTMLPreElement>>('pre');
+    private readonly lineasRef = viewChild<ElementRef<HTMLDivElement>>('lineas');
 
     constructor() {
         effect(() => {
@@ -90,9 +91,13 @@ export class PanelEditor {
     onScroll(): void {
         const area = this.areaRef()?.nativeElement;
         const pre = this.preRef()?.nativeElement;
+        const lineas = this.lineasRef()?.nativeElement;
         if (area && pre) {
             pre.scrollTop = area.scrollTop;
             pre.scrollLeft = area.scrollLeft;
+        }
+        if (area && lineas) {
+            lineas.scrollTop = area.scrollTop;
         }
     }
 
@@ -141,4 +146,9 @@ export class PanelEditor {
         if (ruta.endsWith('.y')) return 'y';
         return 'plano';
     }
+    
+    protected readonly numerosLinea = computed(() => {
+    const lineas = this.codigo().split('\n').length;
+    return Array.from({ length: Math.max(lineas, 1) }, (_, i) => i + 1);
+    });
 }

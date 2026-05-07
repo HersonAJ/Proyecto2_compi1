@@ -168,7 +168,10 @@
 .pre,
 .area {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 48px;      
     margin: 0;
     padding: 0.75rem 1rem;
     box-sizing: border-box;
@@ -239,3 +242,27 @@
 .pre ::ng-deep .tok-operador   { color: #4ade80; }
 .pre ::ng-deep .tok-agrupador  { color: #60a5fa; }
 .pre ::ng-deep .tok-comentario { color: #64748b; font-style: italic; }
+
+.lineas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 48px;
+    background: #0b1220;
+    border-right: 1px solid #334155;
+    padding: 0.75rem 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+    text-align: right;
+    user-select: none;
+    z-index: 1;
+}
+
+.num {
+    padding: 0 0.6rem 0 0;
+}
