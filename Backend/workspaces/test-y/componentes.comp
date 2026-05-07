@@ -1,0 +1,7 @@
+header() {
+    T("Bienvenido")
+}
+
+card(string titulo) {
+    T("$titulo")
+}

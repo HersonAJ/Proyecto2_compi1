@@ -5,6 +5,11 @@ import { ApiService } from './api.service';
 import { ErrorYFERA } from '../modelos/error-yfera.model';
 import { Lenguaje } from './resaltado.service';
 
+export interface ContextoAnalisis {
+    proyecto: string | null;
+    rutaArchivo: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AnalisisService {
     private readonly api = inject(ApiService);
@@ -12,13 +17,10 @@ export class AnalisisService {
     readonly errores = signal<ErrorYFERA[]>([]);
     readonly css = signal<string>('');
     readonly html = signal<string>('');
+    readonly js = signal<string>('');
     readonly analizando = signal<boolean>(false);
 
-    /**
-     * Analiza el codigo bajo demanda. Llama al endpoint correspondiente
-     * segun el lenguaje y actualiza las signals.
-     */
-    analizar(codigo: string, lenguaje: Lenguaje): void {
+    analizar(codigo: string, lenguaje: Lenguaje, contexto?: ContextoAnalisis): void {
         if (!codigo.trim()) {
             this.limpiar();
             return;
@@ -33,6 +35,7 @@ export class AnalisisService {
                     this.errores.set(resp.errores || []);
                     this.css.set(resp.css || '');
                     this.html.set('');
+                    this.js.set('');
                     this.analizando.set(false);
                 });
             return;
@@ -45,12 +48,28 @@ export class AnalisisService {
                     this.errores.set(resp.errores || []);
                     this.html.set(resp.html || '');
                     this.css.set('');
+                    this.js.set('');
                     this.analizando.set(false);
                 });
             return;
         }
 
-        // Otros lenguajes: por ahora limpiar
+        if (lenguaje === 'y') {
+            const proyecto = contexto?.proyecto ?? null;
+            const rutaArchivo = contexto?.rutaArchivo ?? null;
+            this.api.analizarY(codigo, proyecto, rutaArchivo)
+                .pipe(catchError(this.manejarErrorRed))
+                .subscribe((resp: any) => {
+                    this.errores.set(resp.errores || []);
+                    this.js.set(resp.js || '');
+                    this.css.set('');
+                    this.html.set('');
+                    this.analizando.set(false);
+                });
+            return;
+        }
+
+        // Otros lenguajes: limpiar
         this.limpiar();
         this.analizando.set(false);
     }
@@ -59,6 +78,7 @@ export class AnalisisService {
         this.errores.set([]);
         this.css.set('');
         this.html.set('');
+        this.js.set('');
     }
 
     private manejarErrorRed = (err: any) => {
@@ -71,7 +91,8 @@ export class AnalisisService {
                 mensaje: 'Error de red: ' + (err.message || 'no se pudo conectar al backend')
             }],
             css: '',
-            html: ''
+            html: '',
+            js: ''
         });
     };
 }

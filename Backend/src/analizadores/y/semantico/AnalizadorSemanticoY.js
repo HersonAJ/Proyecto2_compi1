@@ -1,4 +1,5 @@
 const TablaSimbolos = require('../../tablas/TablaSimbolos');
+const ContextoProyecto = require('./ContextoProyecto');
 const ValidadorImports = require('./ValidadorImports');
 const ValidadorVariables = require('./ValidadorVariables');
 const ValidadorFunciones = require('./ValidadorFunciones');
@@ -9,6 +10,7 @@ class AnalizadorSemanticoY {
         this.opciones = opciones || {};
         this.tabla = new TablaSimbolos();
         this.errores = [];
+        this.contexto = new ContextoProyecto(this.opciones);
     }
 
     analizar(ast) {
@@ -21,8 +23,8 @@ class AnalizadorSemanticoY {
         const funciones = ast.filter(function (d) { return d && d.tipo === 'funcion'; });
         const mains = ast.filter(function (d) { return d && d.tipo === 'main'; });
 
-        // Imports
-        const validadorImports = new ValidadorImports(this.opciones);
+        // Imports 
+        const validadorImports = new ValidadorImports(this.contexto);
         this.errores = this.errores.concat(validadorImports.validar(imports, this.tabla));
 
         // Variables globales
@@ -33,8 +35,8 @@ class AnalizadorSemanticoY {
         const validadorFunciones = new ValidadorFunciones();
         this.errores = this.errores.concat(validadorFunciones.validar(funciones, this.tabla));
 
-        // Main (siempre se valida, incluso si esta vacio el array)
-        const validadorMain = new ValidadorMain();
+        // Main (recibe contexto para validar invocaciones contra componentes importados)
+        const validadorMain = new ValidadorMain(this.contexto);
         this.errores = this.errores.concat(validadorMain.validar(mains, this.tabla));
 
         return { tabla: this.tabla, errores: this.errores };

@@ -2,6 +2,11 @@ const ErrorYFERA = require('../../errores/ErrorYFERA');
 const ValidadorBloques = require('./ValidadorBloques');
 
 class ValidadorMain {
+
+    constructor(contexto) {
+        this.contexto = contexto;
+    }
+
     validar(mains, tabla) {
         const errores = [];
 
@@ -37,8 +42,35 @@ class ValidadorMain {
     }
 
     _validarInvocacion(inv, tabla, errores) {
+        // Validar argumentos
         for (let i = 0; i < inv.argumentos.length; i++) {
             this._validarExpresion(inv.argumentos[i], tabla, errores);
+        }
+
+        if (this.contexto && this.contexto.estaActivo()) {
+            const componente = this.contexto.buscarComponente(inv.nombre);
+            if (!componente) {
+                errores.push(new ErrorYFERA(
+                    'Semantico',
+                    inv.nombre,
+                    inv.linea,
+                    inv.columna,
+                    'El componente "' + inv.nombre + '" no esta definido en ningun .comp importado'
+                ));
+                return;
+            }
+
+            // Validar cantidad de argumentos
+            if (inv.argumentos.length !== componente.parametros.length) {
+                errores.push(new ErrorYFERA(
+                    'Semantico',
+                    inv.nombre,
+                    inv.linea,
+                    inv.columna,
+                    'El componente "' + inv.nombre + '" espera ' + componente.parametros.length +
+                    ' argumento(s) pero se recibieron ' + inv.argumentos.length
+                ));
+            }
         }
     }
 

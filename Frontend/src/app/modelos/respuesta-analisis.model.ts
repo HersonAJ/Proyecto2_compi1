@@ -16,3 +16,11 @@ export interface RespuestaAnalisisComp {
     componentes: { [nombre: string]: string };
     errores: ErrorYFERA[];
 }
+
+export interface RespuestaAnalisisY {
+    exito: boolean;
+    ast: any[];
+    tablaSimbolos: any;
+    js: string;
+    errores: ErrorYFERA[];
+}

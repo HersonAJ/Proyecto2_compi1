@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RespuestaAnalisisEstilos, RespuestaAnalisisComp } from '../modelos/respuesta-analisis.model';
+import { RespuestaAnalisisEstilos, RespuestaAnalisisComp, RespuestaAnalisisY} from '../modelos/respuesta-analisis.model';
 import { NodoArbol } from '../modelos/arbol.model';
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +24,13 @@ export class ApiService {
         return this.http.post<RespuestaAnalisisComp>(
             `${this.baseUrl}/comp/analizar`,
             { codigo }
+        );
+    }
+
+    analizarY(codigo: string, proyecto: string | null, rutaArchivo: string | null): Observable<RespuestaAnalisisY> {
+        return this.http.post<RespuestaAnalisisY>(
+            `${this.baseUrl}/y/analizar`,
+            { codigo, proyecto, rutaArchivo }
         );
     }
 

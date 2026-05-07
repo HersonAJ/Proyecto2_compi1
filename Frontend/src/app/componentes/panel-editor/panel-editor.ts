@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, effect, ElementRef, viewChild } from '@angular/core';
 import { ResaltadoService, Lenguaje } from '../../servicios/resaltado.service';
 import { AnalisisService } from '../../servicios/analisis.service';
-import { ArchivosAbiertosService, ArchivoAbierto } from '../../servicios/archivos-abiertos.service';
+import { ArchivosAbiertosService } from '../../servicios/archivos-abiertos.service';
 import { ApiService } from '../../servicios/api.service';
 
 @Component({
@@ -133,7 +133,13 @@ export class PanelEditor {
     }
 
     analizar(): void {
-        this.analisis.analizar(this.codigo(), this.lenguaje());
+        const archivo = this.archivoActivo();
+        if (!archivo) return;
+
+        this.analisis.analizar(this.codigo(), this.lenguaje(), {
+            proyecto: archivo.proyecto,
+            rutaArchivo: archivo.ruta
+        });
     }
 
     limpiarAnalisis(): void {
