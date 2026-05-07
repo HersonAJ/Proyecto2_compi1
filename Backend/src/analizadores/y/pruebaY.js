@@ -394,6 +394,183 @@ main {
     }
 }
 `
+},
+{
+    nombre: 'While basico',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+main {
+    while (i < 10) {
+        @item();
+        i = i + 1;
+    }
+}
+`
+},
+{
+    nombre: 'While con break y continue',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+main {
+    while (i < 10) {
+        if (i == 5) {
+            break;
+        }
+        if (i == 3) {
+            continue;
+        }
+        @item();
+        i = i + 1;
+    }
+}
+`
+},
+{
+    nombre: 'Do-while basico',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+main {
+    do {
+        @item();
+        i = i + 1;
+    } while (i < 5)
+}
+`
+},
+{
+    nombre: 'For basico con increment',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+main {
+    for (i = 0; i < 10; i++) {
+        @item();
+    }
+}
+`
+},
+{
+    nombre: 'For con asignacion compuesta',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+main {
+    for (i = 0; i <= 10; i = i + 2) {
+        @item();
+    }
+}
+`
+},
+{
+    nombre: 'Ciclos anidados',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+int j = 0;
+main {
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            @celda();
+        }
+    }
+}
+`
+},
+{
+    nombre: 'While con condicion no booleana',
+    esperaExito: false,
+    mensajesEsperados: ['debe ser de tipo boolean'],
+    codigo: `
+int x = 5;
+main {
+    while (x) {
+        @algo();
+    }
+}
+`
+},
+{
+    nombre: 'Break fuera de ciclo y switch',
+    esperaExito: false,
+    mensajesEsperados: ['solo puede aparecer dentro de un ciclo o switch'],
+    codigo: `
+main {
+    break;
+}
+`
+},
+{
+    nombre: 'Continue fuera de ciclo',
+    esperaExito: false,
+    mensajesEsperados: ['solo puede aparecer dentro de un ciclo'],
+    codigo: `
+main {
+    continue;
+}
+`
+},
+{
+    nombre: 'Continue dentro de switch (no valido)',
+    esperaExito: false,
+    mensajesEsperados: ['solo puede aparecer dentro de un ciclo'],
+    codigo: `
+int x = 1;
+main {
+    switch (x) {
+        case 1:
+            continue;
+            break;
+    }
+}
+`
+},
+{
+    nombre: 'For con variable no declarada',
+    esperaExito: false,
+    mensajesEsperados: ['no esta declarada'],
+    codigo: `
+main {
+    for (i = 0; i < 10; i++) {
+        @item();
+    }
+}
+`
+},
+{
+    nombre: 'Incremento sobre variable string',
+    esperaExito: false,
+    mensajesEsperados: ['solo aplica a variables numericas'],
+    codigo: `
+string s = "hola";
+main {
+    for (s = "a"; True; s++) {
+        @algo();
+    }
+}
+`
+},
+{
+    nombre: 'Break dentro de switch dentro de while (valido)',
+    esperaExito: true,
+    codigo: `
+int i = 0;
+int x = 1;
+main {
+    while (i < 5) {
+        switch (x) {
+            case 1:
+                break;
+            case 2:
+                @algo();
+                break;
+        }
+        i = i + 1;
+    }
+}
+`
 }
 ];
 

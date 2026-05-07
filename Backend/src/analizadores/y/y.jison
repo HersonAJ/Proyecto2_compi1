@@ -483,6 +483,11 @@ sentencia_main
     | asignacion                { $$ = $1; }
     | if_stmt                   { $$ = $1; }
     | switch_stmt               { $$ = $1; }
+    | while_stmt                { $$ = $1; }
+    | do_while_stmt             { $$ = $1; }
+    | for_stmt                  { $$ = $1; }
+    | break_stmt                { $$ = $1; }
+    | continue_stmt             { $$ = $1; }
     ;
 
 invocacion_componente
@@ -680,7 +685,95 @@ cuerpo_caso
 
 sentencia_caso
     : sentencia_main        { $$ = $1; }
-    | break_stmt            { $$ = $1; }
+    ;
+
+/* ============== CICLOS ============== */
+
+while_stmt
+    : WHILE PAR_IZQ expresion PAR_DER LLAVE_IZQ cuerpo_main_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'while',
+                condicion: $3,
+                cuerpo: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+do_while_stmt
+    : DO LLAVE_IZQ cuerpo_main_opt LLAVE_DER WHILE PAR_IZQ expresion PAR_DER
+        {
+            $$ = {
+                tipo: 'do_while',
+                cuerpo: $3,
+                condicion: $7,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+for_stmt
+    : FOR PAR_IZQ for_init PUNTO_COMA expresion PUNTO_COMA for_update PAR_DER LLAVE_IZQ cuerpo_main_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'for',
+                inicializacion: $3,
+                condicion: $5,
+                actualizacion: $7,
+                cuerpo: $10,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+for_init
+    : IDENTIFICADOR IGUAL expresion
+        {
+            $$ = {
+                tipo: 'asignacion',
+                nombre: $1,
+                indice: null,
+                expresion: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+for_update
+    : IDENTIFICADOR IGUAL expresion
+        {
+            $$ = {
+                tipo: 'asignacion',
+                nombre: $1,
+                indice: null,
+                expresion: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | IDENTIFICADOR INCREMENTO
+        {
+            $$ = {
+                tipo: 'incremento',
+                nombre: $1,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | IDENTIFICADOR DECREMENTO
+        {
+            $$ = {
+                tipo: 'decremento',
+                nombre: $1,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
     ;
 
 break_stmt
@@ -688,6 +781,17 @@ break_stmt
         {
             $$ = {
                 tipo: 'break',
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+continue_stmt
+    : CONTINUE PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'continue',
                 linea: @1.first_line,
                 columna: @1.first_column + 1
             };

@@ -3,12 +3,13 @@ const ErrorYFERA = require('../../errores/ErrorYFERA');
 class ValidadorBloques {
     constructor() {
         this.errores = [];
+        this.profundidadCiclo = 0;
+        this.profundidadSwitch = 0;
     }
 
     validarCuerpo(cuerpo, tabla, validadorMain) {
         for (let i = 0; i < cuerpo.length; i++) {
-            const s = cuerpo[i];
-            this._validarSentencia(s, tabla, validadorMain);
+            this._validarSentencia(cuerpo[i], tabla, validadorMain);
         }
         return this.errores;
     }
@@ -29,7 +30,23 @@ class ValidadorBloques {
             case 'switch':
                 this._validarSwitch(s, tabla, validadorMain);
                 break;
+            case 'while':
+                this._validarWhile(s, tabla, validadorMain);
+                break;
+            case 'do_while':
+                this._validarDoWhile(s, tabla, validadorMain);
+                break;
+            case 'for':
+                this._validarFor(s, tabla, validadorMain);
+                break;
             case 'break':
+                this._validarBreak(s);
+                break;
+            case 'continue':
+                this._validarContinue(s);
+                break;
+            case 'incremento':
+            case 'decremento':
                 break;
         }
     }
@@ -48,12 +65,10 @@ class ValidadorBloques {
             ));
         }
 
-        // Cuerpo del if
         for (let i = 0; i < nodo.cuerpo.length; i++) {
             this._validarSentencia(nodo.cuerpo[i], tabla, validadorMain);
         }
 
-        // Ramas else
         let yaHuboElseFinal = false;
         for (let i = 0; i < nodo.ramas_else.length; i++) {
             const r = nodo.ramas_else[i];
@@ -94,8 +109,8 @@ class ValidadorBloques {
     }
 
     _validarSwitch(nodo, tabla, validadorMain) {
-        // Validar la expresion del switch
         validadorMain._validarExpresion(nodo.expresion, tabla, this.errores);
+
         const tipoExpr = this._inferirTipo(nodo.expresion, tabla);
         if (tipoExpr !== null && tipoExpr !== 'int' && tipoExpr !== 'float' && tipoExpr !== 'string') {
             this.errores.push(new ErrorYFERA(
@@ -107,8 +122,10 @@ class ValidadorBloques {
             ));
         }
 
-        // Verificar que cada caso tenga el mismo tipo que la expresion
         const valoresVistos = new Set();
+
+        this.profundidadSwitch++;
+
         for (let i = 0; i < nodo.casos.length; i++) {
             const c = nodo.casos[i];
             const tipoCaso = this._tipoValorCaso(c.valor);
@@ -123,7 +140,6 @@ class ValidadorBloques {
                 ));
             }
 
-            // Detectar duplicados
             const claveValor = tipoCaso + ':' + c.valor.valor;
             if (valoresVistos.has(claveValor)) {
                 this.errores.push(new ErrorYFERA(
@@ -137,15 +153,140 @@ class ValidadorBloques {
                 valoresVistos.add(claveValor);
             }
 
-            // Validar cuerpo del caso
             for (let j = 0; j < c.cuerpo.length; j++) {
                 this._validarSentencia(c.cuerpo[j], tabla, validadorMain);
             }
         }
+
         if (nodo.defecto) {
             for (let j = 0; j < nodo.defecto.cuerpo.length; j++) {
                 this._validarSentencia(nodo.defecto.cuerpo[j], tabla, validadorMain);
             }
+        }
+
+        this.profundidadSwitch--;
+    }
+
+    _validarWhile(nodo, tabla, validadorMain) {
+        validadorMain._validarExpresion(nodo.condicion, tabla, this.errores);
+
+        const tipoCond = this._inferirTipo(nodo.condicion, tabla);
+        if (tipoCond !== null && tipoCond !== 'boolean') {
+            this.errores.push(new ErrorYFERA(
+                'Semantico',
+                'while',
+                nodo.linea,
+                nodo.columna,
+                'La condicion del "while" debe ser de tipo boolean, se recibio: ' + tipoCond
+            ));
+        }
+
+        this.profundidadCiclo++;
+        for (let i = 0; i < nodo.cuerpo.length; i++) {
+            this._validarSentencia(nodo.cuerpo[i], tabla, validadorMain);
+        }
+        this.profundidadCiclo--;
+    }
+
+    _validarDoWhile(nodo, tabla, validadorMain) {
+        this.profundidadCiclo++;
+        for (let i = 0; i < nodo.cuerpo.length; i++) {
+            this._validarSentencia(nodo.cuerpo[i], tabla, validadorMain);
+        }
+        this.profundidadCiclo--;
+
+        validadorMain._validarExpresion(nodo.condicion, tabla, this.errores);
+        const tipoCond = this._inferirTipo(nodo.condicion, tabla);
+        if (tipoCond !== null && tipoCond !== 'boolean') {
+            this.errores.push(new ErrorYFERA(
+                'Semantico',
+                'do-while',
+                nodo.linea,
+                nodo.columna,
+                'La condicion del "do-while" debe ser de tipo boolean, se recibio: ' + tipoCond
+            ));
+        }
+    }
+
+    _validarFor(nodo, tabla, validadorMain) {
+        // Validar inicializacion (asignacion)
+        validadorMain._validarAsignacion(nodo.inicializacion, tabla, this.errores);
+
+        // Validar condicion (debe ser booleana)
+        validadorMain._validarExpresion(nodo.condicion, tabla, this.errores);
+        const tipoCond = this._inferirTipo(nodo.condicion, tabla);
+        if (tipoCond !== null && tipoCond !== 'boolean') {
+            this.errores.push(new ErrorYFERA(
+                'Semantico',
+                'for',
+                nodo.linea,
+                nodo.columna,
+                'La condicion del "for" debe ser de tipo boolean, se recibio: ' + tipoCond
+            ));
+        }
+
+        // Validar actualizacion
+        const upd = nodo.actualizacion;
+        if (upd.tipo === 'asignacion') {
+            validadorMain._validarAsignacion(upd, tabla, this.errores);
+        } else if (upd.tipo === 'incremento' || upd.tipo === 'decremento') {
+            const sim = tabla.buscar(upd.nombre);
+            if (!sim) {
+                this.errores.push(new ErrorYFERA(
+                    'Semantico',
+                    upd.nombre,
+                    upd.linea,
+                    upd.columna,
+                    'La variable "' + upd.nombre + '" no esta declarada'
+                ));
+            } else if (sim.categoria !== 'variable') {
+                this.errores.push(new ErrorYFERA(
+                    'Semantico',
+                    upd.nombre,
+                    upd.linea,
+                    upd.columna,
+                    '"' + upd.nombre + '" no es una variable'
+                ));
+            } else if (sim.tipoDato !== 'int' && sim.tipoDato !== 'float') {
+                this.errores.push(new ErrorYFERA(
+                    'Semantico',
+                    upd.nombre,
+                    upd.linea,
+                    upd.columna,
+                    'El operador "' + (upd.tipo === 'incremento' ? '++' : '--') +
+                    '" solo aplica a variables numericas, "' + upd.nombre + '" es ' + sim.tipoDato
+                ));
+            }
+        }
+
+        this.profundidadCiclo++;
+        for (let i = 0; i < nodo.cuerpo.length; i++) {
+            this._validarSentencia(nodo.cuerpo[i], tabla, validadorMain);
+        }
+        this.profundidadCiclo--;
+    }
+
+    _validarBreak(nodo) {
+        if (this.profundidadCiclo === 0 && this.profundidadSwitch === 0) {
+            this.errores.push(new ErrorYFERA(
+                'Semantico',
+                'break',
+                nodo.linea,
+                nodo.columna,
+                '"break" solo puede aparecer dentro de un ciclo o switch'
+            ));
+        }
+    }
+
+    _validarContinue(nodo) {
+        if (this.profundidadCiclo === 0) {
+            this.errores.push(new ErrorYFERA(
+                'Semantico',
+                'continue',
+                nodo.linea,
+                nodo.columna,
+                '"continue" solo puede aparecer dentro de un ciclo'
+            ));
         }
     }
 
@@ -207,7 +348,6 @@ class ValidadorBloques {
 
     _tiposCompatiblesSwitch(tipoSwitch, tipoCaso) {
         if (tipoSwitch === tipoCaso) return true;
-        // Permitir mezcla int/float
         if ((tipoSwitch === 'int' || tipoSwitch === 'float') &&
             (tipoCaso === 'int' || tipoCaso === 'float')) return true;
         return false;
