@@ -1,27 +1,62 @@
 <div class="panel">
-    <div class="tabs">
-        <button
-            class="tab"
-            [class.activo]="lenguaje() === 'styles'"
-            (click)="cambiarLenguaje('styles')">
-            archivo.styles
-        </button>
-        <button
-            class="tab"
-            [class.activo]="lenguaje() === 'comp'"
-            (click)="cambiarLenguaje('comp')">
-            archivo.comp
-        </button>
+    <div class="tabs-barra">
+        @if (archivos().length === 0) {
+            <span class="sin-pestanas">Ningun archivo abierto</span>
+        } @else {
+            @for (a of archivos(); track a.ruta) {
+                <div
+                    class="tab"
+                    [class.activo]="a.ruta === archivoActivo()?.ruta"
+                    (click)="activarPestana(a.ruta)"
+                    [title]="a.ruta">
+                    <span class="tab-nombre">{{ nombreCorto(a.ruta) }}</span>
+                    @if (archivosService.estaSucio(a.ruta)) {
+                        <span class="dirty" title="Cambios sin guardar">●</span>
+                    }
+                    <button class="cerrar" (click)="cerrarPestana(a.ruta, $event)" title="Cerrar">×</button>
+                </div>
+            }
+        }
     </div>
 
+    @if (archivoActivo(); as archivo) {
+        <div class="acciones-barra">
+            <span class="ruta-completa">{{ archivo.ruta }}</span>
+            <span class="separador"></span>
+            <span class="badge">{{ lenguaje() }}</span>
+            <button
+                class="boton-guardar"
+                (click)="guardar()"
+                [disabled]="!sucio()"
+                title="Guardar (Ctrl+S)">
+                Guardar
+            </button>
+            @if (mensajeGuardado()) {
+                <span class="mensaje-ok">✓ {{ mensajeGuardado() }}</span>
+            }
+        </div>
+    }
+
+    @if (mensajeError()) {
+        <div class="error-banner">{{ mensajeError() }}</div>
+    }
+
     <div class="editor">
-        <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
-        <textarea
-            #area
-            class="area"
-            spellcheck="false"
-            [value]="codigo()"
-            (input)="onInput($event)"
-            (scroll)="onScroll()"></textarea>
+        @if (archivoActivo()) {
+            <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
+            <textarea
+                #area
+                class="area"
+                spellcheck="false"
+                [value]="codigo()"
+                (input)="onInput($event)"
+                (scroll)="onScroll()"
+                (keydown)="onKeydown($event)"></textarea>
+        } @else {
+            <div class="placeholder">
+                <p>Abre un archivo desde el explorador para empezar a editar.</p>
+                <p class="ayuda">Usa <kbd>Ctrl+S</kbd> para guardar mientras editas.</p>
+            </div>
+        }
     </div>
 </div>

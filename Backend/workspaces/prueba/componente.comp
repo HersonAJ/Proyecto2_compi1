@@ -1,0 +1,30 @@
+/* Prueba de colores para .comp */
+
+saludoComponente(string nombre, int edad, boolean activo) {
+    <mi-estilo>[
+        T("Hola, $nombre! Tienes $edad años.")
+        
+        if ($edad >= 18 && $activo) {
+            T("Eres mayor de edad y estas activo.")
+        } else {
+            T("No cumples las condiciones.")
+        }
+
+        for each ($item : $lista) {
+            T("Item actual: $item")
+        }
+
+        FORM<estilo-form>{
+            INPUT_TEXT<input-estilo>(
+                id: "nombre",
+                label: "Tu nombre",
+                value: "$nombre"
+            )
+            INPUT_BOOL(
+                id: "valido",
+                label: "Es valido?",
+                value: true
+            )
+        }
+    ]
+}

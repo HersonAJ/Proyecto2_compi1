@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, effect } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ApiService } from '../../servicios/api.service';
 import { ProyectoService } from '../../servicios/proyecto.service';
-import { ArchivoActivoService } from '../../servicios/archivo-activo.service';
+import { ArchivosAbiertosService } from '../../servicios/archivos-abiertos.service';
 import { NodoArbol } from '../../modelos/arbol.model';
 
 @Component({
@@ -14,20 +14,16 @@ import { NodoArbol } from '../../modelos/arbol.model';
 export class PanelArbol {
     private readonly api = inject(ApiService);
     protected readonly proyectoService = inject(ProyectoService);
-    private readonly archivoService = inject(ArchivoActivoService);
+    private readonly archivosService = inject(ArchivosAbiertosService);
 
     protected readonly arbol = signal<NodoArbol | null>(null);
     protected readonly cargando = signal<boolean>(false);
     protected readonly mensajeError = signal<string>('');
 
-    //Conjunto de rutas de carpetas expandidas.
     protected readonly carpetasExpandidas = signal<Set<string>>(new Set());
-
-    //Carpeta donde se crearan los nuevos archivos/carpetas. '' = raiz
     protected readonly carpetaActiva = signal<string>('');
 
-    //Ruta del archivo actualmente seleccionado
-    protected readonly rutaActiva = computed(() => this.archivoService.archivo()?.ruta ?? null);
+    protected readonly rutaActiva = computed(() => this.archivosService.archivoActivo()?.ruta ?? null);
 
     constructor() {
         effect(() => {
@@ -62,7 +58,6 @@ export class PanelArbol {
         });
     }
 
-    //Click en una carpeta: la marca como activa y alterna su expansion
     clickCarpeta(ruta: string): void {
         this.carpetaActiva.set(ruta);
         const set = new Set(this.carpetasExpandidas());
@@ -82,9 +77,14 @@ export class PanelArbol {
         const proyecto = this.proyectoService.proyectoActivo();
         if (!proyecto) return;
 
+        if (this.archivosService.estaAbierto(nodo.ruta)) {
+            this.archivosService.activar(nodo.ruta);
+            return;
+        }
+
         this.api.leerArchivo(proyecto, nodo.ruta).subscribe({
             next: (resp) => {
-                this.archivoService.abrir(proyecto, resp.ruta, resp.contenido);
+                this.archivosService.abrir(proyecto, resp.ruta, resp.contenido);
             },
             error: (err) => {
                 const detalle = err.error?.error || err.message || 'error desconocido';
@@ -107,7 +107,6 @@ export class PanelArbol {
         this.mensajeError.set('');
         this.api.guardarArchivo(proyecto, rutaCompleta, '').subscribe({
             next: () => {
-                // Asegurar que la carpeta padre quede expandida para ver el archivo nuevo
                 const set = new Set(this.carpetasExpandidas());
                 set.add(padre);
                 this.carpetasExpandidas.set(set);
@@ -157,11 +156,9 @@ export class PanelArbol {
 
         this.api.eliminarArchivoOCarpeta(proyecto, nodo.ruta).subscribe({
             next: () => {
-                const activo = this.archivoService.archivo();
-                if (activo && activo.ruta === nodo.ruta) {
-                    this.archivoService.cerrar();
+                if (this.archivosService.estaAbierto(nodo.ruta)) {
+                    this.archivosService.cerrar(nodo.ruta);
                 }
-                // Si la carpeta activa es la que se elimino, regresar a la raiz
                 if (this.carpetaActiva() === nodo.ruta) {
                     this.carpetaActiva.set('');
                 }
@@ -177,7 +174,7 @@ export class PanelArbol {
     salirDelProyecto(): void {
         const ok = confirm('Cerrar el proyecto actual y volver al selector?');
         if (!ok) return;
-        this.archivoService.cerrar();
+        this.archivosService.cerrarTodos();
         this.proyectoService.limpiar();
     }
 }
