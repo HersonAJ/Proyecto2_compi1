@@ -1,9 +1,60 @@
 <div class="panel">
     <div class="encabezado">
-        <span>EXPLORADOR</span>
-        <button class="icono" title="Crear archivo">+</button>
+        <span class="titulo">{{ proyectoService.proyectoActivo() || 'EXPLORADOR' }}</span>
+        <div class="acciones">
+            <button class="icono" title="Crear archivo" (click)="crearArchivo()">+ Archivo</button>
+            <button class="icono" title="Crear carpeta" (click)="crearCarpeta()">+ Carpeta</button>
+            <button class="icono" title="Recargar" (click)="recargar()">↻</button>
+            <button class="icono" title="Cerrar proyecto" (click)="salirDelProyecto()">×</button>
+        </div>
     </div>
+
+    <div class="ubicacion" title="Ubicacion donde se crearan archivos/carpetas nuevos">
+        Crear en: <span class="ubicacion-ruta">{{ carpetaActiva() || '/' }}</span>
+    </div>
+
+    @if (mensajeError()) {
+        <div class="error">{{ mensajeError() }}</div>
+    }
+
     <div class="contenido">
-        <p class="vacio">No hay proyecto abierto.</p>
+        @if (cargando()) {
+            <p class="vacio">Cargando...</p>
+        } @else if (!arbol()) {
+            <p class="vacio">No hay proyecto abierto.</p>
+        } @else {
+            <ng-container *ngTemplateOutlet="nodoTpl; context: { $implicit: arbol(), nivel: 0 }"></ng-container>
+        }
     </div>
 </div>
+
+<ng-template #nodoTpl let-nodo let-nivel="nivel">
+    @if (nodo.tipo === 'carpeta') {
+        <div
+            class="fila carpeta"
+            [class.activa]="nodo.ruta === carpetaActiva()"
+            [style.padding-left.px]="nivel * 14 + 6"
+            (click)="clickCarpeta(nodo.ruta)">
+            <span class="icono-fila">{{ estaExpandida(nodo.ruta) ? '▾' : '▸' }}</span>
+            <span class="nombre">{{ nodo.nombre }}</span>
+            @if (nivel > 0) {
+                <button class="eliminar" (click)="eliminar(nodo, $event)" title="Eliminar carpeta">×</button>
+            }
+        </div>
+        @if (estaExpandida(nodo.ruta) && nodo.hijos) {
+            @for (hijo of nodo.hijos; track hijo.ruta) {
+                <ng-container *ngTemplateOutlet="nodoTpl; context: { $implicit: hijo, nivel: nivel + 1 }"></ng-container>
+            }
+        }
+    } @else {
+        <div
+            class="fila archivo"
+            [class.activo]="nodo.ruta === rutaActiva()"
+            [style.padding-left.px]="nivel * 14 + 6"
+            (click)="abrirArchivo(nodo)">
+            <span class="icono-fila"></span>
+            <span class="nombre">{{ nodo.nombre }}</span>
+            <button class="eliminar" (click)="eliminar(nodo, $event)" title="Eliminar archivo">×</button>
+        </div>
+    }
+</ng-template>

@@ -9,7 +9,7 @@
 
 .encabezado {
     height: 32px;
-    padding: 0 0.75rem;
+    padding: 0 0.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -18,6 +18,24 @@
     font-weight: 600;
     letter-spacing: 1px;
     border-bottom: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.titulo {
+    font-family: 'Courier New', monospace;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.1rem;
+    flex-shrink: 0;
 }
 
 .icono {
@@ -25,22 +43,275 @@
     border: none;
     color: #94a3b8;
     cursor: pointer;
-    font-size: 1rem;
-    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 3px;
 }
 
 .icono:hover {
     color: #fff;
+    background: #334155;
+}
+
+.ubicacion {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+    color: #64748b;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ubicacion-ruta {
+    color: #60a5fa;
+}
+
+.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .contenido {
     flex: 1;
     overflow-y: auto;
-    padding: 0.75rem;
+    padding: 0.25rem 0;
 }
 
 .vacio {
     color: #64748b;
     font-size: 0.85rem;
     font-style: italic;
+    padding: 0.75rem;
+}
+
+.fila {
+    display: flex;
+    align-items: center;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    cursor: pointer;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    user-select: none;
+    gap: 0.25rem;
+}
+
+.fila:hover {
+    background: #334155;
+}
+
+.fila.archivo.activo {
+    background: #1e3a5f;
+    color: #e5e7eb;
+}
+
+.fila.carpeta.activa {
+    background: #2d3e54;
+    border-left: 2px solid #60a5fa;
+    padding-left: calc(var(--padding) - 2px);
+}
+
+.fila .icono-fila {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    width: 14px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.fila .nombre {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+}
+
+.fila.carpeta .nombre {
+    color: #e5e7eb;
+}
+
+.fila .eliminar {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 0.3rem;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.fila:hover .eliminar {
+    opacity: 1;
+}
+
+.fila .eliminar:hover {
+    color: #ef4444;
+}.panel {
+    height: 100%;
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.encabezado {
+    height: 32px;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.titulo {
+    font-family: 'Courier New', monospace;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.1rem;
+    flex-shrink: 0;
+}
+
+.icono {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 3px;
+}
+
+.icono:hover {
+    color: #fff;
+    background: #334155;
+}
+
+.ubicacion {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+    color: #64748b;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ubicacion-ruta {
+    color: #60a5fa;
+}
+
+.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.contenido {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+}
+
+.vacio {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-style: italic;
+    padding: 0.75rem;
+}
+
+.fila {
+    display: flex;
+    align-items: center;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    cursor: pointer;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    user-select: none;
+    gap: 0.25rem;
+}
+
+.fila:hover {
+    background: #334155;
+}
+
+.fila.archivo.activo {
+    background: #1e3a5f;
+    color: #e5e7eb;
+}
+
+.fila.carpeta.activa {
+    background: #2d3e54;
+    border-left: 2px solid #60a5fa;
+    padding-left: calc(var(--padding) - 2px);
+}
+
+.fila .icono-fila {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    width: 14px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.fila .nombre {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+}
+
+.fila.carpeta .nombre {
+    color: #e5e7eb;
+}
+
+.fila .eliminar {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 0.3rem;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.fila:hover .eliminar {
+    opacity: 1;
+}
+
+.fila .eliminar:hover {
+    color: #ef4444;
 }
