@@ -1,12 +1,12 @@
 const TablaSimbolos = require('../../tablas/TablaSimbolos');
 const ValidadorImports = require('./ValidadorImports');
 const ValidadorVariables = require('./ValidadorVariables');
+const ValidadorFunciones = require('./ValidadorFunciones');
+const ValidadorMain = require('./ValidadorMain');
 
 class AnalizadorSemanticoY {
     constructor(opciones) {
         this.opciones = opciones || {};
-        // opciones.proyecto: nombre del proyecto (para resolver imports en disco)
-        // opciones.rutaArchivo: ruta del archivo .y dentro del proyecto
         this.tabla = new TablaSimbolos();
         this.errores = [];
     }
@@ -16,19 +16,26 @@ class AnalizadorSemanticoY {
             return { tabla: this.tabla, errores: this.errores };
         }
 
-        // Separar por tipo de declaracion
         const imports = ast.filter(function (d) { return d && d.tipo === 'import'; });
         const variables = ast.filter(function (d) { return d && d.tipo === 'variable'; });
+        const funciones = ast.filter(function (d) { return d && d.tipo === 'funcion'; });
+        const mains = ast.filter(function (d) { return d && d.tipo === 'main'; });
 
-        // Validar imports
+        // Imports
         const validadorImports = new ValidadorImports(this.opciones);
-        const erroresImports = validadorImports.validar(imports, this.tabla);
-        this.errores = this.errores.concat(erroresImports);
+        this.errores = this.errores.concat(validadorImports.validar(imports, this.tabla));
 
-        // Validar variables globales
+        // Variables globales
         const validadorVariables = new ValidadorVariables();
-        const erroresVariables = validadorVariables.validar(variables, this.tabla);
-        this.errores = this.errores.concat(erroresVariables);
+        this.errores = this.errores.concat(validadorVariables.validar(variables, this.tabla));
+
+        // Funciones
+        const validadorFunciones = new ValidadorFunciones();
+        this.errores = this.errores.concat(validadorFunciones.validar(funciones, this.tabla));
+
+        // Main (siempre se valida, incluso si esta vacio el array)
+        const validadorMain = new ValidadorMain();
+        this.errores = this.errores.concat(validadorMain.validar(mains, this.tabla));
 
         return { tabla: this.tabla, errores: this.errores };
     }

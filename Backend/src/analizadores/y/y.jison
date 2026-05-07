@@ -150,6 +150,8 @@ lista_declaraciones
 declaracion
     : import_decl       { $$ = $1; }
     | variable_decl     { $$ = $1; }
+    | function_decl     { $$ = $1; }
+    | main_decl         { $$ = $1; }
     ;
 
 /* ============== IMPORTS ============== */
@@ -331,4 +333,202 @@ expresion_primaria
         { $$ = { tipo: 'acceso_array', nombre: $1, indice: $3, linea: @1.first_line, columna: @1.first_column + 1 }; }
     | PAR_IZQ expresion PAR_DER
         { $$ = $2; }
+    ;
+
+/* ============== FUNCIONES ============== */
+
+function_decl
+    : FUNCTION IDENTIFICADOR PAR_IZQ parametros_opt PAR_DER LLAVE_IZQ cuerpo_funcion_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'funcion',
+                nombre: $2,
+                parametros: $4,
+                cuerpo: $7,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+parametros_opt
+    : parametros        { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+parametros
+    : parametros COMA parametro
+        { $1.push($3); $$ = $1; }
+    | parametro
+        { $$ = [$1]; }
+    ;
+
+parametro
+    : tipo IDENTIFICADOR
+        {
+            $$ = {
+                tipoDato: $1,
+                esArreglo: false,
+                nombre: $2,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | tipo COR_IZQ COR_DER IDENTIFICADOR
+        {
+            $$ = {
+                tipoDato: $1,
+                esArreglo: true,
+                nombre: $4,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+cuerpo_funcion_opt
+    : cuerpo_funcion        { $$ = $1; }
+    |                       { $$ = []; }
+    ;
+
+cuerpo_funcion
+    : cuerpo_funcion sentencia_funcion
+        {
+            if ($2 !== null) $1.push($2);
+            $$ = $1;
+        }
+    | cuerpo_funcion error PUNTO_COMA
+        { $$ = $1; }
+    | sentencia_funcion
+        { $$ = $1 !== null ? [$1] : []; }
+    | error PUNTO_COMA
+        { $$ = []; }
+    ;
+
+sentencia_funcion
+    : execute_stmt          { $$ = $1; }
+    | load_stmt             { $$ = $1; }
+    ;
+
+execute_stmt
+    : EXECUTE CADENA_SQL PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'execute',
+                sql: $2,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+load_stmt
+    : LOAD CADENA PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'load',
+                clase: 'literal',
+                valor: $2,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | LOAD IDENTIFICADOR PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'load',
+                clase: 'variable',
+                valor: $2,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+/* ============== MAIN ============== */
+
+main_decl
+    : MAIN LLAVE_IZQ cuerpo_main_opt LLAVE_DER
+        {
+            $$ = {
+                tipo: 'main',
+                cuerpo: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+cuerpo_main_opt
+    : cuerpo_main       { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+cuerpo_main
+    : cuerpo_main sentencia_main
+        {
+            if ($2 !== null) $1.push($2);
+            $$ = $1;
+        }
+    | cuerpo_main error PUNTO_COMA
+        { $$ = $1; }
+    | sentencia_main
+        { $$ = $1 !== null ? [$1] : []; }
+    | error PUNTO_COMA
+        { $$ = []; }
+    ;
+
+sentencia_main
+    : invocacion_componente     { $$ = $1; }
+    | asignacion                { $$ = $1; }
+    ;
+
+invocacion_componente
+    : REFERENCIA PAR_IZQ argumentos_opt PAR_DER PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'invocacion_componente',
+                nombre: $1.substring(1),
+                argumentos: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    ;
+
+argumentos_opt
+    : argumentos        { $$ = $1; }
+    |                   { $$ = []; }
+    ;
+
+argumentos
+    : argumentos COMA expresion
+        { $1.push($3); $$ = $1; }
+    | expresion
+        { $$ = [$1]; }
+    ;
+
+asignacion
+    : IDENTIFICADOR IGUAL expresion PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'asignacion',
+                nombre: $1,
+                indice: null,
+                expresion: $3,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
+    | IDENTIFICADOR COR_IZQ expresion COR_DER IGUAL expresion PUNTO_COMA
+        {
+            $$ = {
+                tipo: 'asignacion',
+                nombre: $1,
+                indice: $3,
+                expresion: $6,
+                linea: @1.first_line,
+                columna: @1.first_column + 1
+            };
+        }
     ;
