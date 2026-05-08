@@ -61,9 +61,9 @@ export class AnalisisService {
                 .pipe(catchError(this.manejarErrorRed))
                 .subscribe((resp: any) => {
                     this.errores.set(resp.errores || []);
-                    this.js.set(resp.js || '');
+                    this.html.set(resp.html || '');
                     this.css.set('');
-                    this.html.set('');
+                    this.js.set('');
                     this.analizando.set(false);
                 });
             return;

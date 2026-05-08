@@ -1,9 +1,31 @@
 <div class="panel">
-    <div class="encabezado">
-        <span>VISTA RENDERIZADA</span>
-        <button class="icono" title="Recargar">⟳</button>
+    <div class="tabs">
+        <button
+            class="tab"
+            [class.activo]="tabActiva() === 'preview'"
+            (click)="cambiarTab('preview')">
+            Vista previa
+        </button>
+        <button
+            class="tab"
+            [class.activo]="tabActiva() === 'fuente'"
+            (click)="cambiarTab('fuente')">
+            Codigo fuente
+        </button>
     </div>
+
     <div class="contenido">
-        <p class="vacio">Aqui se mostrara la pagina compilada.</p>
+        @if (!tieneContenido()) {
+            <p class="vacio">Analiza un archivo para ver la vista previa aqui.</p>
+        } @else if (tabActiva() === 'preview') {
+<iframe
+    class="iframe"
+    [srcdoc]="contenidoSeguro()"
+    sandbox="allow-same-origin"
+    title="Vista previa">
+</iframe>
+        } @else {
+            <pre class="fuente">{{ contenido() }}</pre>
+        }
     </div>
 </div>

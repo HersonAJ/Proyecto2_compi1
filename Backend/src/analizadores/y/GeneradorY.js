@@ -1,6 +1,7 @@
 const yModulo = require('./y');
 const ErrorYFERA = require('../errores/ErrorYFERA');
 const AnalizadorSemanticoY = require('./semantico/AnalizadorSemanticoY');
+const TraductorY = require('./traductor/TraductorY');
 
 class GeneradorY {
     analizar(entrada, opciones) {
@@ -42,7 +43,8 @@ class GeneradorY {
         const erroresSintacticos = erroresInternos.sintacticos || [];
 
         // Analisis semantico
-        var resultadoSemantico = { tabla: null, errores: [] };
+        var resultadoSemantico = { tabla: null, errores: [], contexto: null };
+        var contexto = null;
         if (Array.isArray(ast) && ast.length > 0) {
             const semantico = new AnalizadorSemanticoY({
                 proyecto: opciones.proyecto,
@@ -50,6 +52,7 @@ class GeneradorY {
                 rutaBaseProyectos: opciones.rutaBaseProyectos
             });
             resultadoSemantico = semantico.analizar(ast);
+            contexto = semantico.contexto;
         }
 
         const todosErrores = [
@@ -66,13 +69,19 @@ class GeneradorY {
             };
         });
 
-        var js = '';
+        // Traduccion: solo si no hay errores semanticos
+        var html = '';
+        if (resultadoSemantico.errores.length === 0 && contexto && Array.isArray(ast) && ast.length > 0) {
+            const traductor = new TraductorY(contexto);
+            const resultadoTraduccion = traductor.traducir(ast);
+            html = resultadoTraduccion.html;
+        }
 
         return {
             exito: todosErrores.length === 0,
             ast: ast,
             tablaSimbolos: resultadoSemantico.tabla,
-            js: js,
+            html: html,
             errores: todosErrores
         };
     }

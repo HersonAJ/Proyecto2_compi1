@@ -7,42 +7,66 @@
     overflow: hidden;
 }
 
-.encabezado {
+.tabs {
     height: 32px;
-    padding: 0 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #94a3b8;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 1px;
+    background-color: #0f172a;
     border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: stretch;
+    flex-shrink: 0;
 }
 
-.icono {
+.tab {
     background: transparent;
     border: none;
     color: #94a3b8;
+    padding: 0 1rem;
+    font-size: 0.8rem;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0 0.4rem;
+    border-right: 1px solid #334155;
 }
 
-.icono:hover {
-    color: #fff;
+.tab:hover {
+    color: #cbd5e1;
+}
+
+.tab.activo {
+    color: #e5e7eb;
+    background-color: #1e293b;
+    border-bottom: 2px solid #60a5fa;
 }
 
 .contenido {
     flex: 1;
-    overflow: auto;
-    padding: 1rem;
-    background: #fff;
-    color: #000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .vacio {
-    color: #94a3b8;
-    font-size: 0.85rem;
+    color: #64748b;
     font-style: italic;
+    font-size: 0.85rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.iframe {
+    flex: 1;
+    border: none;
+    background: white;
+    width: 100%;
+}
+
+.fuente {
+    flex: 1;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background: #0f172a;
+    color: #e5e7eb;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 0.8rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
 }

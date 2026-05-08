@@ -5,5 +5,5 @@ int contador = 0;
 
 main {
     @header();
-    @card();
+    @card("Hola mundo");
 }

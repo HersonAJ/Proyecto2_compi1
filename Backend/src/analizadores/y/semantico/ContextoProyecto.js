@@ -72,7 +72,8 @@ class ContextoProyecto {
         const r = {
             exito: resultado.exito,
             errores: resultado.errores || [],
-            estilosDefinidos: estilosDefinidos
+            estilosDefinidos: estilosDefinidos,
+            css: resultado.css || ''
         };
         this.cache.set(rutaRelativa, r);
         return r;
@@ -112,7 +113,8 @@ class ContextoProyecto {
         const r = {
             exito: resultado.exito,
             errores: resultado.errores || [],
-            componentesDefinidos: componentesDefinidos
+            componentesDefinidos: componentesDefinidos,
+            componentes: resultado.componentes || {}
         };
         this.cache.set(rutaRelativa, r);
         return r;
@@ -161,6 +163,19 @@ class ContextoProyecto {
             }
         }
         return lista;
+    }
+
+    obtenerCssDeImport(rutaRelativa) {
+        const r = this.cache.get(rutaRelativa);
+        return r ? (r.css || '') : '';
+    }
+
+    obtenerTemplateComponente(nombre) {
+        const info = this.componentes.get(nombre);
+        if (!info) return null;
+        const r = this.cache.get(info.archivo);
+        if (!r || !r.componentes) return null;
+        return r.componentes[nombre] || null;
     }
 }
 

@@ -21,6 +21,6 @@ export interface RespuestaAnalisisY {
     exito: boolean;
     ast: any[];
     tablaSimbolos: any;
-    js: string;
+    html: string;
     errores: ErrorYFERA[];
 }

@@ -1,7 +1,11 @@
 header() {
-    T("Bienvenido")
+    <mi-estilo>[
+        T("Bienvenido")
+    ]
 }
 
 card(string titulo) {
-    T("$titulo")
+    <mi-estilo>[
+        T("$titulo")
+    ]
 }
