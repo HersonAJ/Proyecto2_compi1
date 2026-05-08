@@ -18,6 +18,9 @@
         @if (analizando()) {
             <span class="indicador-analizando">Analizando...</span>
         }
+        @if (ejecutandoSql() && tabActiva() === 'sql') {
+            <span class="indicador-analizando">Ejecutando SQL...</span>
+        }
     </div>
 
     <div class="contenido">
@@ -49,7 +52,74 @@
                 </table>
             }
         } @else {
-            <p class="vacio">Consola SQL aun no implementada.</p>
+            <!-- Tab SQL -->
+            <div class="sql-container">
+                <div class="sql-historial">
+                    @if (historialSql().length === 0) {
+                        <p class="vacio">
+                            @if (proyectoActivo()) {
+                                Escribe una sentencia SQL y presiona Ctrl+Enter o el boton Ejecutar.
+                            } @else {
+                                Abre un proyecto para usar la consola SQL.
+                            }
+                        </p>
+                    }
+                    @for (entrada of historialSql(); track $index) {
+                        <div class="sql-entrada">
+                            <div class="sql-cmd">
+                                <span class="sql-prompt">[{{ formatearHora(entrada.timestamp) }}] &gt;</span>
+                                <code>{{ entrada.codigo }}</code>
+                            </div>
+                            @if (entrada.errores.length > 0) {
+                                @for (err of entrada.errores; track $index) {
+                                    <div class="sql-error">
+                                        [{{ err.tipo }}] L{{ err.linea }}:C{{ err.columna }} - {{ err.mensaje }}
+                                    </div>
+                                }
+                            } @else {
+                                @for (r of entrada.resultados; track $index) {
+                                    <div class="sql-resultado">
+                                        <span class="sql-tipo">[{{ r.tipo }}]</span>
+                                        {{ r.mensaje }}
+                                    </div>
+                                    @if (r.valores && r.valores.length > 0) {
+                                        <div class="sql-valores">
+                                            <span class="sql-etiqueta">{{ r.tabla }}.{{ r.columna }}:</span>
+                                            <span class="sql-array">[{{ r.valores.join(', ') }}]</span>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="sql-input-bar">
+                    <textarea
+                        class="sql-input"
+                        rows="2"
+                        spellcheck="false"
+                        placeholder="Escribe SQL aqui (Ctrl+Enter para ejecutar)"
+                        [ngModel]="queryActual()"
+                        (ngModelChange)="onQueryChange($event)"
+                        (keydown)="onKeydownSql($event)"
+                        [disabled]="!proyectoActivo() || ejecutandoSql()"></textarea>
+                    <div class="sql-acciones">
+                        <button
+                            class="sql-boton primario"
+                            (click)="ejecutarSql()"
+                            [disabled]="!proyectoActivo() || ejecutandoSql() || !queryActual().trim()">
+                            Ejecutar
+                        </button>
+                        <button
+                            class="sql-boton secundario"
+                            (click)="limpiarSql()"
+                            [disabled]="historialSql().length === 0">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
         }
     </div>
 </div>

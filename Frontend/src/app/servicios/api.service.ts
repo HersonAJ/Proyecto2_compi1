@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { RespuestaAnalisisEstilos, RespuestaAnalisisComp, RespuestaAnalisisY} from '../modelos/respuesta-analisis.model';
+import { RespuestaAnalisisEstilos, RespuestaAnalisisComp, RespuestaAnalisisY, RespuestaEjecucionSQL} from '../modelos/respuesta-analisis.model';
 import { NodoArbol } from '../modelos/arbol.model';
 
 @Injectable({ providedIn: 'root' })
@@ -88,6 +88,14 @@ export class ApiService {
         return this.http.post<{ ok: boolean }>(
             `${this.baseUrl}/workspace/eliminar`,
             { proyecto, ruta }
+        );
+    }
+    /* ============== SQL ============== */
+
+    ejecutarSQL(codigo: string, proyecto: string): Observable<RespuestaEjecucionSQL> {
+        return this.http.post<RespuestaEjecucionSQL>(
+            `${this.baseUrl}/sql/ejecutar`,
+            { codigo, proyecto }
         );
     }
 }

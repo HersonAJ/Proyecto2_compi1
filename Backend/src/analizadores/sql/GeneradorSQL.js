@@ -1,0 +1,83 @@
+const sqlModulo = require('./sql');
+const ErrorYFERA = require('../errores/ErrorYFERA');
+const EjecutorSQL = require('./EjecutorSQL');
+
+class GeneradorSQL {
+
+    analizar(entrada, opciones) {
+        opciones = opciones || {};
+        sqlModulo.reiniciarErrores();
+
+        const protoParser = Object.getPrototypeOf(sqlModulo.parser);
+        protoParser.parseError = function (msg, hash) {
+            const linea = hash.loc ? hash.loc.first_line : (hash.line != null ? hash.line + 1 : 0);
+            const columna = hash.loc ? hash.loc.first_column + 1 : 0;
+            const lexema = hash.text || '';
+
+            let descripcion;
+            if (hash.expected && hash.expected.length > 0) {
+                const esperados = hash.expected
+                    .map(function (t) { return t.replace(/'/g, ''); })
+                    .slice(0, 5)
+                    .join(', ');
+                descripcion = 'Se esperaba: ' + esperados + '. Se encontro: "' + lexema + '"';
+            } else {
+                descripcion = 'Error de sintaxis cerca de "' + lexema + '"';
+            }
+
+            sqlModulo.registrarErrorSintactico(
+                new ErrorYFERA('Sintactico', lexema, linea, columna, descripcion)
+            );
+        };
+        sqlModulo.parser.parseError = protoParser.parseError;
+
+        let ast = [];
+        try {
+            ast = sqlModulo.parse(entrada) || [];
+        } catch (e) {
+            // Errores ya registrados
+        }
+
+        const erroresInternos = sqlModulo.obtenerErrores();
+        const erroresLexicos = erroresInternos.lexicos || [];
+        const erroresSintacticos = erroresInternos.sintacticos || [];
+
+        let resultados = [];
+        let erroresEjecucion = [];
+
+        // Ejecutar solo si no hay errores de parseo y se solicito
+        if (opciones.ejecutar && erroresLexicos.length === 0 && erroresSintacticos.length === 0
+            && Array.isArray(ast) && ast.length > 0) {
+            const ejecutor = new EjecutorSQL({
+                proyecto: opciones.proyecto,
+                rutaBaseProyectos: opciones.rutaBaseProyectos
+            });
+            const r = ejecutor.ejecutar(ast);
+            resultados = r.resultados;
+            erroresEjecucion = r.errores;
+        }
+
+        const todosErrores = [
+            ...erroresLexicos,
+            ...erroresSintacticos,
+            ...erroresEjecucion
+        ].map(function (e) {
+            return {
+                tipo: e.tipo,
+                lexema: e.lexema,
+                linea: e.linea,
+                columna: e.columna,
+                mensaje: e.mensaje
+            };
+        });
+
+        return {
+            exito: todosErrores.length === 0,
+            ast: ast,
+            resultados: resultados,
+            errores: todosErrores
+        };
+    }
+}
+
+module.exports = GeneradorSQL;

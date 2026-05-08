@@ -24,13 +24,13 @@
             <span class="ruta-completa">{{ archivo.ruta }}</span>
             <span class="separador"></span>
             <span class="badge">{{ lenguaje() }}</span>
-            <button
-                class="boton-guardar"
-                (click)="guardar()"
-                [disabled]="!sucio()"
-                title="Guardar (Ctrl+S)">
-                Guardar
-            </button>
+<button
+    class="boton-guardar"
+    (click)="guardar()"
+    [disabled]="!sucio() || esArchivoBinario()"
+    title="Guardar (Ctrl+S)">
+    Guardar
+</button>
             @if (mensajeGuardado()) {
                 <span class="mensaje-ok">✓ {{ mensajeGuardado() }}</span>
             }
@@ -42,21 +42,31 @@
     }
 
     <div class="editor">
-        @if (archivoActivo()) {
-            <div class="lineas" #lineas>
-                @for (n of numerosLinea(); track n) {
-                    <div class="num">{{ n }}</div>
-                }
-            </div>
-            <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
-            <textarea
-                #area
-                class="area"
-                spellcheck="false"
-                [value]="codigo()"
-                (input)="onInput($event)"
-                (scroll)="onScroll()"
-                (keydown)="onKeydown($event)"></textarea>
+        @if (archivoActivo(); as archivo) {
+            @if (esArchivoBinario()) {
+                <div class="placeholder">
+                    <p>Archivo de base de datos SQLite</p>
+                    <p class="ayuda">
+                        Este archivo lo gestiona el motor SQL automaticamente.<br>
+                        Usa la consola SQL para crear tablas, insertar y consultar datos.
+                    </p>
+                </div>
+            } @else {
+                <div class="lineas" #lineas>
+                    @for (n of numerosLinea(); track n) {
+                        <div class="num">{{ n }}</div>
+                    }
+                </div>
+                <pre class="pre" #pre [innerHTML]="htmlResaltado()"></pre>
+                <textarea
+                    #area
+                    class="area"
+                    spellcheck="false"
+                    [value]="codigo()"
+                    (input)="onInput($event)"
+                    (scroll)="onScroll()"
+                    (keydown)="onKeydown($event)"></textarea>
+            }
         } @else {
             <div class="placeholder">
                 <p>Abre un archivo desde el explorador para empezar a editar.</p>

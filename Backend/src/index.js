@@ -5,6 +5,7 @@ const rutasComp = require('./rutas/rutasComp');
 const rutasEstilos = require('./rutas/rutasEstilos');
 const rutasWorkspace = require('./rutas/rutasWorkspace');
 const rutasY = require('./rutas/rutasY');
+const rutasSQL = require('./rutas/rutasSQL');
 
 const app = express();
 const PUERTO = 3000;
@@ -23,6 +24,7 @@ app.use('/api/comp', rutasComp);
 app.use('/api/estilos', rutasEstilos);
 app.use('/api/workspace', rutasWorkspace);
 app.use('/api/y', rutasY);
+app.use('/api/sql', rutasSQL);
 
 // 404 para rutas no definidas
 app.use((req, res) => {

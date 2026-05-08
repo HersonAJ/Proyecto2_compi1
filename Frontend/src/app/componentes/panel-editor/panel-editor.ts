@@ -44,6 +44,12 @@ export class PanelEditor {
         return html.endsWith('\n') ? html + ' ' : html;
     });
 
+    protected readonly esArchivoBinario = computed(() => {
+        const a = this.archivoActivo();
+        if (!a) return false;
+        return a.ruta === 'database.db' || a.ruta.endsWith('/database.db');
+    });
+
     protected readonly mensajeError = signal<string>('');
     protected readonly mensajeGuardado = signal<string>('');
 

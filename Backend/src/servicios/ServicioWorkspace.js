@@ -125,6 +125,9 @@ class ServicioWorkspace {
     }
 
     guardarArchivo(nombreProyecto, rutaRelativa, contenido) {
+        if (this._esArchivoProtegido(rutaRelativa)) {
+            throw new Error('No se puede modificar el archivo de base de datos: ' + rutaRelativa);
+        }
         var ruta = this._rutaSegura(nombreProyecto, rutaRelativa);
         var carpetaPadre = path.dirname(ruta);
         if (!fs.existsSync(carpetaPadre)) {
@@ -135,6 +138,9 @@ class ServicioWorkspace {
     }
 
     crearCarpeta(nombreProyecto, rutaRelativa) {
+        if (this._esArchivoProtegido(rutaRelativa)) {
+            throw new Error('Nombre reservado para la base de datos: ' + rutaRelativa);
+        }
         var ruta = this._rutaSegura(nombreProyecto, rutaRelativa);
         if (fs.existsSync(ruta)) {
             throw new Error('Ya existe un archivo o carpeta con ese nombre: ' + rutaRelativa);
@@ -144,6 +150,9 @@ class ServicioWorkspace {
     }
 
     eliminar(nombreProyecto, rutaRelativa) {
+        if (this._esArchivoProtegido(rutaRelativa)) {
+            throw new Error('No se puede eliminar el archivo de base de datos: ' + rutaRelativa);
+        }
         var ruta = this._rutaSegura(nombreProyecto, rutaRelativa);
         var rutaProyecto = this._rutaProyecto(nombreProyecto);
         if (ruta === rutaProyecto) {
@@ -154,6 +163,12 @@ class ServicioWorkspace {
         }
         fs.rmSync(ruta, { recursive: true, force: true });
         return true;
+    }
+
+    _esArchivoProtegido(rutaRelativa) {
+        if (typeof rutaRelativa !== 'string') return false;
+        // El archivo de BD esta en la raiz del proyecto y se llama "database.db"
+        return rutaRelativa === 'database.db' || rutaRelativa.endsWith('/database.db');
     }
 }
 

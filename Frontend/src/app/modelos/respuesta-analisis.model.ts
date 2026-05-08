@@ -24,3 +24,20 @@ export interface RespuestaAnalisisY {
     html: string;
     errores: ErrorYFERA[];
 }
+
+export interface ResultadoSQL {
+    tipo: 'create_table' | 'select' | 'insert' | 'update' | 'delete';
+    tabla: string;
+    mensaje: string;
+    columna?: string;
+    valores?: any[];
+    idInsertado?: number;
+    filasAfectadas?: number;
+}
+
+export interface RespuestaEjecucionSQL {
+    exito: boolean;
+    ast: any[];
+    resultados: ResultadoSQL[];
+    errores: ErrorYFERA[];
+}
