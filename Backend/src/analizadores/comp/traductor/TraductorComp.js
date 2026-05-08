@@ -227,14 +227,28 @@ class TraductorComp {
         var clases = this._construirClases('yfera-form', nodo.estilos);
         var contenido = this._traducirElementos(nodo.elementos);
         var submit = nodo.submit ? this._traducirSubmit(nodo.submit) : '';
-        return '<form class="' + clases + '">\n' + contenido + '\n' + submit + '\n</form>';
+
+        // Generar metadata del form si tiene submit con function
+        var metadata = '';
+        if (nodo.submit) {
+            var meta = this._extraerMetaSubmit(nodo.submit);
+            if (meta) {
+                metadata = '\n<script type="application/json" data-yfera-form-meta="1">'
+                    + JSON.stringify(meta)
+                    + '</script>';
+            }
+        }
+
+        return '<form class="' + clases + '" data-yfera-form="1">\n'
+            + contenido + '\n'
+            + submit + metadata + '\n'
+            + '</form>';
     }
 
     _traducirSubmit(submit) {
         var clases = this._construirClases('yfera-submit', submit.estilos);
         var labelTexto = '';
 
-        // Buscar label en propiedades
         if (Array.isArray(submit.propiedades)) {
             for (var i = 0; i < submit.propiedades.length; i++) {
                 var p = submit.propiedades[i];
@@ -247,6 +261,35 @@ class TraductorComp {
         return '<button type="submit" class="' + clases + '">' + labelTexto + '</button>';
     }
 
+    _extraerMetaSubmit(submit) {
+        if (!Array.isArray(submit.propiedades)) return null;
+
+        for (var i = 0; i < submit.propiedades.length; i++) {
+            var p = submit.propiedades[i];
+            if (p.clave === 'function' && p.valor && p.valor.tipo === 'llamada_funcion') {
+                var args = [];
+                var argumentos = p.valor.argumentos || [];
+                for (var j = 0; j < argumentos.length; j++) {
+                    var a = argumentos[j];
+                    if (a.tipo === 'referencia') {
+                        args.push({ tipo: 'input', id: a.valor });
+                    } else if (a.tipo === 'variable') {
+                        args.push({ tipo: 'placeholder', valor: '{{$' + a.valor + '}}' });
+                    } else if (a.tipo === 'literal') {
+                        args.push({ tipo: 'literal', valor: a.valor });
+                    } else if (a.tipo === 'numero') {
+                        args.push({ tipo: 'literal', valor: a.valor });
+                    }
+                }
+                return {
+                    funcion: p.valor.nombre,
+                    argumentos: args
+                };
+            }
+        }
+        return null;
+    }
+
     //INPUT
     _traducirInput(nodo) {
         var clases = this._construirClases('yfera-input', nodo.estilos);
@@ -255,7 +298,7 @@ class TraductorComp {
         if (nodo.subtipo === 'number') htmlType = 'number';
         else if (nodo.subtipo === 'bool') htmlType = 'checkbox';
 
-        var idAttr = props.id ? ' id="' + this._escaparHtml(props.id) + '"' : '';
+        var idAttr = props.id ? ' data-yfera-id="' + this._escaparHtml(props.id) + '"' : '';
         var labelHtml = props.label ? '<label class="yfera-label">' + this._escaparHtml(props.label) + '</label>' : '';
 
         var valueAttr;
@@ -283,10 +326,12 @@ class TraductorComp {
         }
         return resultado;
     }
-
     _valorPropiedadInput(valor) {
         if (!valor) return '';
-        if (valor.tipo === 'literal') return valor.valor;
+        if (valor.tipo === 'literal') {
+            // Convertir $variable a {{$variable}} dentro de la cadena
+            return valor.valor.replace(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g, '{{$$$1}}');
+        }
         if (valor.tipo === 'numero') return String(valor.valor);
         if (valor.tipo === 'booleano') return valor.valor ? 'true' : 'false';
         if (valor.tipo === 'variable') return '{{$' + valor.valor + '}}';

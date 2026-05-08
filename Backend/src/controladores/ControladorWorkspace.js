@@ -21,6 +21,7 @@ class ControladorWorkspace {
             var proyectos = this.servicio.listarProyectos();
             return res.status(200).json({ proyectos: proyectos });
         } catch (e) {
+            console.error('Error en ControladorWork:', e);
             return res.status(500).json({ error: e.message });
         }
     }
@@ -31,7 +32,8 @@ class ControladorWorkspace {
             this.servicio.crearProyecto(nombre);
             return res.status(200).json({ ok: true, nombre: nombre });
         } catch (e) {
-            return res.status(400).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 
@@ -41,7 +43,8 @@ class ControladorWorkspace {
             this.servicio.eliminarProyecto(nombre);
             return res.status(200).json({ ok: true });
         } catch (e) {
-            return res.status(400).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 
@@ -54,7 +57,8 @@ class ControladorWorkspace {
             var arbol = this.servicio.listarArchivos(proyecto);
             return res.status(200).json({ arbol: arbol });
         } catch (e) {
-            return res.status(404).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 
@@ -68,7 +72,8 @@ class ControladorWorkspace {
             var contenido = this.servicio.leerArchivo(proyecto, ruta);
             return res.status(200).json({ proyecto: proyecto, ruta: ruta, contenido: contenido });
         } catch (e) {
-            return res.status(404).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 
@@ -83,6 +88,7 @@ class ControladorWorkspace {
             this.servicio.guardarArchivo(proyecto, ruta, contenido);
             return res.status(200).json({ ok: true });
         } catch (e) {
+            console.error('Error en ControladorWork:', e);
             return res.status(500).json({ error: e.message });
         }
     }
@@ -97,7 +103,8 @@ class ControladorWorkspace {
             this.servicio.crearCarpeta(proyecto, ruta);
             return res.status(200).json({ ok: true });
         } catch (e) {
-            return res.status(400).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 
@@ -111,7 +118,8 @@ class ControladorWorkspace {
             this.servicio.eliminar(proyecto, ruta);
             return res.status(200).json({ ok: true });
         } catch (e) {
-            return res.status(400).json({ error: e.message });
+            console.error('Error en ControladorWork:', e);
+            return res.status(500).json({ error: e.message });
         }
     }
 }

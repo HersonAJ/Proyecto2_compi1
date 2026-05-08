@@ -72,9 +72,20 @@ class GeneradorY {
         // Traduccion: solo si no hay errores semanticos
         var html = '';
         if (resultadoSemantico.errores.length === 0 && contexto && Array.isArray(ast) && ast.length > 0) {
-            const traductor = new TraductorY(contexto);
+            const traductor = new TraductorY(contexto, {
+                proyecto: opciones.proyecto,
+                rutaBaseProyectos: opciones.rutaBaseProyectos,
+                rutaArchivo: opciones.rutaArchivo
+            });
             const resultadoTraduccion = traductor.traducir(ast);
             html = resultadoTraduccion.html;
+
+            // Propagar errores del traductor (incluyendo execute fallidos)
+            if (resultadoTraduccion.errores && resultadoTraduccion.errores.length > 0) {
+                for (let i = 0; i < resultadoTraduccion.errores.length; i++) {
+                    todosErrores.push(resultadoTraduccion.errores[i]);
+                }
+            }
         }
 
         return {

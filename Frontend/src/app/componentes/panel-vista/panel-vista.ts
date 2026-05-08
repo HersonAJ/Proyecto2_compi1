@@ -17,6 +17,15 @@ export class PanelVista {
     protected readonly html = this.analisis.html;
     protected readonly css = this.analisis.css;
 
+    constructor() {
+        // Escuchar mensajes del iframe (cuando un Submit pide recargar la vista)
+        window.addEventListener('message', (ev: MessageEvent) => {
+            if (ev.data && ev.data.tipo === 'yfera-recargar') {
+                this.analisis.solicitarReanalisis();
+            }
+        });
+    }
+
     protected readonly contenido = computed(() => {
         const html = this.html();
         const css = this.css();

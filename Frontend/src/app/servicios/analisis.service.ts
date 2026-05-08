@@ -19,6 +19,7 @@ export class AnalisisService {
     readonly html = signal<string>('');
     readonly js = signal<string>('');
     readonly analizando = signal<boolean>(false);
+    readonly solicitudReanalisis = signal<number>(0);
 
     analizar(codigo: string, lenguaje: Lenguaje, contexto?: ContextoAnalisis): void {
         if (!codigo.trim()) {
@@ -95,4 +96,8 @@ export class AnalisisService {
             js: ''
         });
     };
+    
+    solicitarReanalisis(): void {
+        this.solicitudReanalisis.set(this.solicitudReanalisis() + 1);
+    }
 }

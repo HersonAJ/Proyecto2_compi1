@@ -6,5 +6,6 @@ const controlador = new ControladorY();
 
 // POST
 router.post('/analizar', controlador.analizar);
+router.post('/invocar-funcion', controlador.invocarFuncion);
 
 module.exports = router;

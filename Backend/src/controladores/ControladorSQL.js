@@ -34,6 +34,7 @@ class ControladorSQL {
 
             return res.status(200).json(resultado);
         } catch (e) {
+            console.error('Error en ControladorSQL:', e);
             return res.status(500).json({ error: e.message });
         }
     }
@@ -52,6 +53,7 @@ class ControladorSQL {
             const resultado = this.generador.analizar(codigo, { ejecutar: false });
             return res.status(200).json(resultado);
         } catch (e) {
+            console.error('Error en ControladorSQL:', e);
             return res.status(500).json({ error: e.message });
         }
     }

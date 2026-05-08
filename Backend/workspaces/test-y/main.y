@@ -1,9 +1,14 @@
 import "./estilo.styles";
 import "./componentes.comp";
 
-int contador = 0;
+string[] nombres = execute `pokemons.nombre`;
+
+function renombrar(string nuevoNombre) {
+    execute `pokemons[nombre=$nuevoNombre] IN 1`;
+    load "./main.y";
+}
 
 main {
-    @header();
-    @card("Hola mundo");
+    @lista(nombres[0]);
+    @formCard(renombrar, nombres[0]);
 }

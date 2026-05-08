@@ -1,8 +1,8 @@
 class TraductorY {
-    constructor(contexto) {
+    constructor(contexto, opciones) {
         this.contexto = contexto;
+        this.opciones = opciones || {};
         this.errores = [];
-        // Tabla de variables con su valor literal evaluado (
         this.variables = new Map();
     }
 
@@ -10,34 +10,132 @@ class TraductorY {
         if (!Array.isArray(ast) || ast.length === 0) {
             return { html: '', errores: [] };
         }
+        const decls = ast.filter(d => d && d.tipo === 'variable').map(d => ({
+            nombre: d.nombre,
+            esArreglo: d.esArreglo,
+            tipoInit: d.inicializador?.tipo
+        }));
 
-        // 1. Recolectar variables globales con valores evaluables
         this._recolectarVariables(ast);
-
-        // 2. Construir CSS desde .styles importados
+        for (const [k, v] of this.variables) {
+            console.log('  ', k, '=>', JSON.stringify(v));
+        }
         const css = this._construirCSS(ast);
-
-        // 3. Construir body desde main
         const body = this._construirBody(ast);
-
-        // 4. Envolver en HTML
         const html = this._envolverHTML(css, body);
-
         return { html: html, errores: this.errores };
     }
 
     _recolectarVariables(ast) {
         for (let i = 0; i < ast.length; i++) {
             const decl = ast[i];
-            if (!decl || decl.tipo !== 'variable' || decl.esArreglo) continue;
+            if (!decl || decl.tipo !== 'variable') continue;
 
-            const valor = this._evaluarExpresion(decl.inicializador, this.variables);
-            this.variables.set(decl.nombre, {
-                tipo: decl.tipoDato,
-                valor: valor,
-                evaluable: valor !== null
-            });
+            if (decl.esArreglo) {
+                const init = decl.inicializador;
+                if (init.tipo === 'arreglo_valores') {
+                    const valores = init.valores.map((v) => this._evaluarExpresion(v, this.variables));
+                    this.variables.set(decl.nombre, {
+                        tipo: decl.tipoDato,
+                        esArreglo: true,
+                        valor: valores,
+                        evaluable: valores.every((v) => v !== null)
+                    });
+                } else if (init.tipo === 'arreglo_execute') {
+                    const valores = this._ejecutarSQLGlobal(init.sql, init.linea, init.columna);
+                    this.variables.set(decl.nombre, {
+                        tipo: decl.tipoDato,
+                        esArreglo: true,
+                        valor: valores,
+                        evaluable: valores !== null
+                    });
+                } else if (init.tipo === 'arreglo_tamano') {
+                    const valorPorDefecto = this._valorPorDefecto(decl.tipoDato);
+                    const valores = new Array(init.tamano).fill(valorPorDefecto);
+                    this.variables.set(decl.nombre, {
+                        tipo: decl.tipoDato,
+                        esArreglo: true,
+                        valor: valores,
+                        evaluable: true
+                    });
+                }
+            } else {
+                const valor = this._evaluarExpresion(decl.inicializador, this.variables);
+                this.variables.set(decl.nombre, {
+                    tipo: decl.tipoDato,
+                    esArreglo: false,
+                    valor: valor,
+                    evaluable: valor !== null
+                });
+            }
         }
+    }
+
+    _valorPorDefecto(tipo) {
+        switch (tipo) {
+            case 'int':
+            case 'float':   return 0;
+            case 'string':  return '';
+            case 'char':    return '';
+            case 'boolean': return false;
+            default:        return null;
+        }
+    }
+
+    _ejecutarSQLGlobal(sql, linea, columna) {
+        if (!this.opciones.proyecto || !this.opciones.rutaBaseProyectos) {
+            this.errores.push({
+                tipo: 'Semantico',
+                lexema: 'execute',
+                linea: linea,
+                columna: columna,
+                mensaje: 'No se puede ejecutar SQL sin contexto de proyecto'
+            });
+            return null;
+        }
+
+        let codigoSQL = sql.trim();
+        if (!codigoSQL.endsWith(';')) codigoSQL += ';';
+
+        const GeneradorSQL = require('../../sql/GeneradorSQL');
+        const generador = new GeneradorSQL();
+        const resultado = generador.analizar(codigoSQL, {
+            ejecutar: true,
+            proyecto: this.opciones.proyecto,
+            rutaBaseProyectos: this.opciones.rutaBaseProyectos
+        });
+
+        if (!resultado.exito) {
+            for (let i = 0; i < resultado.errores.length; i++) {
+                const e = resultado.errores[i];
+                this.errores.push({
+                    tipo: 'Semantico',
+                    lexema: 'execute',
+                    linea: linea,
+                    columna: columna,
+                    mensaje: 'Error en execute: ' + e.mensaje
+                });
+            }
+            return null;
+        }
+
+        if (resultado.resultados.length === 0) {
+            return [];
+        }
+
+        const r = resultado.resultados[0];
+        if (r.tipo !== 'select') {
+            this.errores.push({
+                tipo: 'Semantico',
+                lexema: 'execute',
+                linea: linea,
+                columna: columna,
+                mensaje: 'Solo se permite SELECT (tabla.columna) para inicializar arreglos con execute'
+            });
+            return null;
+        }
+
+        return r.valores || [];
     }
 
     _construirCSS(ast) {
@@ -285,6 +383,14 @@ class TraductorY {
                 const d = this._evaluarExpresion(expr.der, variables);
                 return (i !== null && d !== null) ? i !== d : null;
             }
+            case 'acceso_array': {
+                const v = variables.get(expr.nombre);
+                if (!v || !v.evaluable || !Array.isArray(v.valor)) return null;
+                const indice = this._evaluarExpresion(expr.indice, variables);
+                if (indice === null || typeof indice !== 'number') return null;
+                if (indice < 0 || indice >= v.valor.length) return null;
+                return v.valor[indice];
+            }
             default:
                 return null;
         }
@@ -311,10 +417,87 @@ class TraductorY {
             '</head>',
             '<body>',
             body.split('\n').map(function (l) { return '    ' + l; }).join('\n'),
+            '    ' + this._generarRuntimeScript(),
             '</body>',
             '</html>'
         ];
         return partes.join('\n');
+    }
+
+    _generarRuntimeScript() {
+        const proyecto = this.opciones.proyecto || '';
+        const rutaArchivo = this.opciones.rutaArchivo || '';
+
+        return `<script>
+    (function () {
+        const PROYECTO = ${JSON.stringify(proyecto)};
+        const RUTA_ARCHIVO = ${JSON.stringify(rutaArchivo)};
+        const ENDPOINT = 'http://localhost:3000/api/y/invocar-funcion';
+
+        function recolectarValor(form, idLogico) {
+            const input = form.querySelector('[data-yfera-id="' + idLogico + '"]');
+            if (!input) return null;
+            if (input.type === 'checkbox') return input.checked;
+            return input.value;
+        }
+
+        function enganchar(form) {
+            const meta = form.querySelector('script[data-yfera-form-meta]');
+            if (!meta) return;
+            let info;
+            try {
+                info = JSON.parse(meta.textContent);
+            } catch (e) {
+                console.error('YFERA: metadata invalida en form', e);
+                return;
+            }
+
+            form.addEventListener('submit', async function (ev) {
+                ev.preventDefault();
+                const argumentos = info.argumentos.map(function (a) {
+                    if (a.tipo === 'input') return recolectarValor(form, a.id);
+                    if (a.tipo === 'literal') return a.valor;
+                    return null;
+                });
+
+                try {
+                    const resp = await fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            proyecto: PROYECTO,
+                            rutaArchivo: RUTA_ARCHIVO,
+                            nombreFuncion: info.funcion,
+                            argumentos: argumentos
+                        })
+                    });
+                    const data = await resp.json();
+
+                    if (!data.exito && data.errores && data.errores.length > 0) {
+                        const msg = data.errores.map(function (e) { return e.mensaje; }).join('\\n');
+                        alert('Error: ' + msg);
+                        return;
+                    }
+
+                    if (data.recargar) {
+                        // Si estamos dentro de un iframe, avisar al padre para que reanalice
+                        if (window.parent && window.parent !== window) {
+                            window.parent.postMessage({ tipo: 'yfera-recargar' }, '*');
+                        } else {
+                            window.location.reload();
+                        }
+                    } else if (data.mensajes && data.mensajes.length > 0) {
+                        alert('OK:\\n' + data.mensajes.join('\\n'));
+                    }
+                } catch (e) {
+                    alert('Error de red: ' + e.message);
+                }
+            });
+        }
+
+        document.querySelectorAll('form[data-yfera-form]').forEach(enganchar);
+    })();
+    </script>`;
     }
 }
 

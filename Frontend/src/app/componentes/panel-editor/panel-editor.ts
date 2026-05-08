@@ -63,6 +63,12 @@ export class PanelEditor {
             this.mensajeError.set('');
             this.mensajeGuardado.set('');
         });
+            effect(() => {
+            const trigger = this.analisis.solicitudReanalisis();
+            if (trigger > 0 && this.archivoActivo()) {
+                this.analizar();
+            }
+        });
     }
 
     /** Devuelve solo el nombre del archivo (sin la ruta de carpetas) para la pestaña. */

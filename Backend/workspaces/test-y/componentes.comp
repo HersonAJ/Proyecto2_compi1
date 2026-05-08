@@ -1,11 +1,21 @@
-header() {
+formCard(function renombrar, string nombreActual) {
     <mi-estilo>[
-        T("Bienvenido")
+        T("Nombre actual: $nombreActual")
+        FORM {
+            INPUT_TEXT(
+                id: "nuevoNombre",
+                label: "Nuevo nombre",
+                value: "$nombreActual"
+            )
+        } SUBMIT {
+            label: "Guardar",
+            function: $renombrar(@nuevoNombre)
+        }
     ]
 }
 
-card(string titulo) {
+lista(string nombre) {
     <mi-estilo>[
-        T("$titulo")
+        T("Pokemon: $nombre")
     ]
 }

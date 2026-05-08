@@ -18,12 +18,12 @@
         @if (!tieneContenido()) {
             <p class="vacio">Analiza un archivo para ver la vista previa aqui.</p>
         } @else if (tabActiva() === 'preview') {
-<iframe
-    class="iframe"
-    [srcdoc]="contenidoSeguro()"
-    sandbox="allow-same-origin"
-    title="Vista previa">
-</iframe>
+        <iframe
+            class="iframe"
+            [srcdoc]="contenidoSeguro()"
+            sandbox="allow-scripts allow-forms"
+            title="Vista previa">
+        </iframe>
         } @else {
             <pre class="fuente">{{ contenido() }}</pre>
         }
