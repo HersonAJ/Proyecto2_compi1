@@ -23,7 +23,6 @@ function probar(titulo, entrada) {
     }
 }
 
-/* === Sanity de through (ya funcionaba antes) === */
 probar('A) Through 1..4 (inclusivo, 4 estilos)', `
 @for $i from 1 through 4 {
     my-font-$i {
@@ -32,7 +31,7 @@ probar('A) Through 1..4 (inclusivo, 4 estilos)', `
 }
 `);
 
-/* === Nuevo: to exclusivo === */
+/* to exclusivo*/
 probar('B) To 1..4 (exclusivo, 3 estilos)', `
 @for $i from 1 to 4 {
     my-font-$i {

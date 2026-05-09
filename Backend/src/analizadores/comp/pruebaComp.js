@@ -16,7 +16,6 @@ function probar(titulo, entrada) {
     console.log(resultado.html);
 }
 
-/* === Sanity de T1 === */
 probar('A) Sanity: texto + imagen', `
 panel() {
     [

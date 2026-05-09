@@ -1,12 +1,5 @@
 const GeneradorY = require('./GeneradorY');
 
-/**
- * Define un caso de prueba.
- * - codigo: el .y a analizar
- * - esperaExito: true si esperamos exito: true en el resultado
- * - mensajesEsperados: subcadenas que deben aparecer en algun mensaje de error
- *   (solo se chequea si esperaExito es false)
- */
 const casos = [
 {
     nombre: 'Imports y variables basicas',

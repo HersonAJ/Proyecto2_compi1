@@ -1,0 +1,70 @@
+/* Tarjeta base */
+tarjeta-libro {
+    background color = white;
+    color = black;
+    padding = 16;
+    border = 2 solid #94a3b8;
+    border radius = 10;
+    margin = 8;
+}
+
+/* Tarjeta destacada (libros con calificacion alta) */
+tarjeta-destacada extends tarjeta-libro {
+    background color = #fef3c7;
+    border = 3 solid #f59e0b;
+}
+
+/* Encabezado del catalogo */
+titulo-catalogo {
+    background color = #1e40af;
+    color = white;
+    text size = 24;
+    text align = CENTER;
+    padding = 20;
+    border radius = 8;
+}
+
+/* Titulo del libro */
+titulo-libro {
+    text size = 18;
+    color = #1e40af;
+    padding = 4;
+}
+
+/* Datos secundarios del libro */
+dato-libro {
+    text size = 14;
+    color = #374151;
+    padding = 2;
+}
+
+/* Etiqueta de calificacion: estilos diferentes segun el rating */
+@for $i from 1 through 5 {
+    rating-$i {
+        background color = lightgray;
+        color = black;
+        padding = 4;
+        text size = 12;
+        border radius = 6;
+    }
+}
+
+/* Mensaje de recomendacion */
+recomendacion {
+    background color = #d1fae5;
+    color = #065f46;
+    padding = 10;
+    border = 1 solid #10b981;
+    border radius = 6;
+    text size = 14;
+}
+
+/* Mensaje de advertencia */
+no-recomendado {
+    background color = #fee2e2;
+    color = #991b1b;
+    padding = 10;
+    border = 1 solid #ef4444;
+    border radius = 6;
+    text size = 14;
+}

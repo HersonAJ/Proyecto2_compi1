@@ -1,0 +1,93 @@
+/* Encabezado del catalogo */
+encabezadoCatalogo(string titulo, int totalLibros) {
+    <titulo-catalogo>[
+        T("$titulo")
+        T("Total de libros: $totalLibros")
+    ]
+}
+
+/* Ficha de un libro: cambia su estilo segun la calificacion */
+fichaLibro(string titulo, string autor, int paginas, int calificacion) {
+    if ($calificacion >= 5) {
+        <tarjeta-destacada>[
+            <titulo-libro>[
+                T("$titulo")
+            ]
+            <dato-libro>[
+                T("Autor: $autor")
+            ]
+            <dato-libro>[
+                T("Paginas: $paginas")
+            ]
+            <recomendacion>[
+                T("Excelente lectura, altamente recomendado")
+            ]
+        ]
+    } else if ($calificacion >= 4) {
+        <tarjeta-libro>[
+            <titulo-libro>[
+                T("$titulo")
+            ]
+            <dato-libro>[
+                T("Autor: $autor")
+            ]
+            <dato-libro>[
+                T("Paginas: $paginas")
+            ]
+            <recomendacion>[
+                T("Buena lectura, vale la pena")
+            ]
+        ]
+    } else {
+        <tarjeta-libro>[
+            <titulo-libro>[
+                T("$titulo")
+            ]
+            <dato-libro>[
+                T("Autor: $autor")
+            ]
+            <dato-libro>[
+                T("Paginas: $paginas")
+            ]
+            <no-recomendado>[
+                T("No es de mis favoritos")
+            ]
+        ]
+    }
+}
+
+/* Etiqueta visual segun nivel de calificacion */
+etiquetaRating(int calificacion) {
+    Switch ($calificacion) {
+        case 5 {
+            <rating-5>[
+                T("Calificacion: 5/5 - Obra maestra")
+            ]
+        },
+        case 4 {
+            <rating-4>[
+                T("Calificacion: 4/5 - Muy bueno")
+            ]
+        },
+        case 3 {
+            <rating-3>[
+                T("Calificacion: 3/5 - Aceptable")
+            ]
+        },
+        case 2 {
+            <rating-2>[
+                T("Calificacion: 2/5 - Regular")
+            ]
+        },
+        case 1 {
+            <rating-1>[
+                T("Calificacion: 1/5 - No recomendado")
+            ]
+        },
+        default {
+            <dato-libro>[
+                T("Sin calificar")
+            ]
+        }
+    }
+}

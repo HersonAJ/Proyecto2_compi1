@@ -86,7 +86,7 @@ correr('INSERT en tabla inexistente',
     `noExiste[algo="hola"];`, false);
 
 correr('UPDATE id que no existe',
-    `pokemons[nivel=99] IN 9999;`, true);  // No es error, solo "no afecto filas"
+    `pokemons[nivel=99] IN 9999;`, true);  
 
 correr('Multiples sentencias en orden', `
 TABLE temp COLUMNS valor=int;

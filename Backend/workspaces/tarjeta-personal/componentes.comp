@@ -1,0 +1,51 @@
+/* Encabezado con nombre y profesion */
+encabezado(string nombre, string profesion) {
+    <tarjeta-azul>[
+        <nombre-grande>[
+            T("$nombre")
+        ]
+        <campo>[
+            T("Profesion: $profesion")
+        ]
+    ]
+}
+
+/* Tarjeta de contacto */
+contacto(string email, string telefono, string ciudad) {
+    <tarjeta>[
+        <seccion-2>[
+            T("Informacion de contacto")
+        ]
+        <campo>[
+            T("Email: $email")
+        ]
+        <campo>[
+            T("Telefono: $telefono")
+        ]
+        <campo>[
+            T("Ciudad: $ciudad")
+        ]
+    ]
+}
+
+/* Etiqueta de habilidad individual */
+etiquetaHabilidad(string nombreHabilidad) {
+    <habilidad>[
+        T("$nombreHabilidad")
+    ]
+}
+
+/* Bloque de experiencia con anos */
+experiencia(string puesto, string empresa, int anos) {
+    <tarjeta>[
+        <seccion-3>[
+            T("$puesto")
+        ]
+        <campo>[
+            T("Empresa: $empresa")
+        ]
+        <campo>[
+            T("Años en el puesto: $anos")
+        ]
+    ]
+}
