@@ -5,7 +5,9 @@
         <app-barra-superior
             class="layout-barra"
             (analizarSolicitado)="onAnalizar()"
-            (limpiarSolicitado)="onLimpiar()">
+            (limpiarSolicitado)="onLimpiar()"
+            (indentarSolicitado)="onIndentar()"
+            (colorSeleccionado)="onColorSeleccionado($event)">
         </app-barra-superior>
 
         <div class="layout-medio">

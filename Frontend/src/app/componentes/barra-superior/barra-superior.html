@@ -4,6 +4,11 @@
         <span class="subtitulo">Framework</span>
     </div>
     <nav class="acciones">
+        <label class="boton color-label" title="Selector de color para .styles">
+            Color
+            <input type="color" class="color-input" (change)="onColorChange($event)" />
+        </label>
+        <button class="boton" (click)="onIndentar()">Indentar</button>
         <button class="boton" (click)="onLimpiar()">Limpiar errores</button>
         <button class="boton primario" (click)="onAnalizar()">Analizar</button>
     </nav>

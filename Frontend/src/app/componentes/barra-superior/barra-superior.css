@@ -57,3 +57,21 @@
 .boton.primario:hover {
     background: #1d4ed8;
 }
+
+.color-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.color-input {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid #475569;
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+}

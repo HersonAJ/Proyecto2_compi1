@@ -9,6 +9,8 @@ import { Component, output } from '@angular/core';
 export class BarraSuperior {
     readonly analizarSolicitado = output<void>();
     readonly limpiarSolicitado = output<void>();
+    readonly indentarSolicitado = output<void>();
+    readonly colorSeleccionado = output<string>();
 
     onAnalizar(): void {
         this.analizarSolicitado.emit();
@@ -16,5 +18,14 @@ export class BarraSuperior {
 
     onLimpiar(): void {
         this.limpiarSolicitado.emit();
+    }
+
+    onIndentar(): void {
+        this.indentarSolicitado.emit();
+    }
+
+    onColorChange(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.colorSeleccionado.emit(input.value);
     }
 }

@@ -33,6 +33,14 @@ export class ResaltadoService {
         'id', 'label', 'value'
     ]);
 
+    private readonly reservadasY = new Set([
+        'import', 'function', 'main', 'execute', 'load',
+        'int', 'float', 'string', 'boolean', 'char',
+        'if', 'else', 'switch', 'case', 'default',
+        'while', 'do', 'for', 'break', 'continue',
+        'true', 'True', 'false', 'False'
+    ]);
+
     private readonly operadores = new Set([
         '+', '-', '*', '/', '%', '=', '<', '>',
         '<=', '>=', '==', '!=', '&&', '||', '!'
@@ -50,7 +58,11 @@ export class ResaltadoService {
             return [{ texto: codigo, tipo: 'normal' }];
         }
 
-        const reservadas = lenguaje === 'styles' ? this.reservadasStyles : this.reservadasComp;
+    let reservadas: Set<string>;
+    if (lenguaje === 'styles') reservadas = this.reservadasStyles;
+    else if (lenguaje === 'comp') reservadas = this.reservadasComp;
+    else if (lenguaje === 'y') reservadas = this.reservadasY;
+    else reservadas = new Set();
         const tokens: TokenResaltado[] = [];
         let i = 0;
 

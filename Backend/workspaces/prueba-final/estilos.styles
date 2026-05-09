@@ -1,0 +1,39 @@
+/* Estilos base */
+caja {
+    background color = lightgray;
+    color = blue;
+    text size = 14;
+    padding = 12;
+    margin = 8;
+    border = 2 solid red;
+    border radius = 6;
+}
+
+/* Herencia */
+caja-destacada extends caja {
+    color = white;
+    background color = red;
+    text size = 18;
+}
+
+/* Bucle for con through (inclusivo) */
+@for $i from 1 through 4 {
+    titulo-$i {
+        text size = $i * 8;
+        color = green;
+    }
+}
+
+/* Bucle for con to (exclusivo) */
+@for $j from 0 to 3 {
+    item-$j {
+        padding = $j * 5;
+        margin top = $j * 2;
+    }
+}
+
+texto-error {
+    color = red;
+    text size = 12;
+    text font = MONO;
+}

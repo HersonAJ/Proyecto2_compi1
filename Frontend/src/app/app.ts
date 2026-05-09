@@ -34,4 +34,12 @@ export class App {
     onLimpiar(): void {
         this.editorRef()?.limpiarAnalisis();
     }
+
+    onIndentar(): void {
+        this.editorRef()?.indentar();
+    }
+
+    onColorSeleccionado(color: string): void {
+        this.editorRef()?.insertarEnCursor(color);
+    }
 }

@@ -3,6 +3,7 @@ import { ResaltadoService, Lenguaje } from '../../servicios/resaltado.service';
 import { AnalisisService } from '../../servicios/analisis.service';
 import { ArchivosAbiertosService } from '../../servicios/archivos-abiertos.service';
 import { ApiService } from '../../servicios/api.service';
+import { IndentadorService } from '../../servicios/indentador.service';
 
 @Component({
     selector: 'app-panel-editor',
@@ -15,6 +16,7 @@ export class PanelEditor {
     private readonly analisis = inject(AnalisisService);
     private readonly api = inject(ApiService);
     protected readonly archivosService = inject(ArchivosAbiertosService);
+    private readonly indentador = inject(IndentadorService);
 
     /** Lista de pestañas abiertas. */
     protected readonly archivos = this.archivosService.archivos;
@@ -169,4 +171,31 @@ export class PanelEditor {
     const lineas = this.codigo().split('\n').length;
     return Array.from({ length: Math.max(lineas, 1) }, (_, i) => i + 1);
     });
+
+    indentar(): void {
+        const archivo = this.archivoActivo();
+        if (!archivo) return;
+        const codigoIndentado = this.indentador.indentar(archivo.contenidoActual, this.lenguaje());
+        this.archivosService.actualizarContenido(archivo.ruta, codigoIndentado);
+    }
+
+    insertarEnCursor(texto: string): void {
+        const archivo = this.archivoActivo();
+        if (!archivo) return;
+        const area = this.areaRef()?.nativeElement;
+        if (!area) return;
+
+        const inicio = area.selectionStart;
+        const fin = area.selectionEnd;
+        const contenido = archivo.contenidoActual;
+        const nuevoContenido = contenido.substring(0, inicio) + texto + contenido.substring(fin);
+
+        this.archivosService.actualizarContenido(archivo.ruta, nuevoContenido);
+
+        // Reposicionar el cursor justo despues del texto insertado
+        setTimeout(() => {
+            area.focus();
+            area.selectionStart = area.selectionEnd = inicio + texto.length;
+        }, 0);
+    }
 }

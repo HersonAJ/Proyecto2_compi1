@@ -1,0 +1,72 @@
+/* Componente con seccion estilada y texto con variables */
+encabezado(string titulo, int contador) {
+    <caja-destacada>[
+        T("Bienvenido: $titulo")
+        T("Total de items: $contador")
+    ]
+}
+
+/* Componente con tabla y if interno */
+fichaPokemon(string nombre, int nivel, boolean esVeterano) {
+    <caja>[
+        T("Nombre: $nombre")
+        T("Nivel: $nivel")
+
+        if ($esVeterano) {
+            <caja-destacada>[
+                T("Pokemon veterano (nivel >= 50)")
+            ]
+        } else {
+            T("Pokemon en entrenamiento")
+        }
+
+        Switch ($nivel) {
+            case 1 {
+                T("Recien capturado")
+            },
+            case 50 {
+                T("Nivel maximo de novato")
+            },
+            default {
+                T("Nivel intermedio")
+            }
+        }
+    ]
+}
+
+/* Formulario con submit que llama a una funcion del .y */
+formularioEdicion(function actualizar, string nombreActual, int nivelActual) {
+    <caja>[
+        T("Editando a: $nombreActual")
+        FORM {
+            INPUT_TEXT(
+                id: "nuevoNombre",
+                label: "Nuevo nombre",
+                value: "$nombreActual"
+            )
+            INPUT_NUMBER(
+                id: "nuevoNivel",
+                label: "Nuevo nivel",
+                value: $nivelActual
+            )
+            INPUT_BOOL(
+                id: "activo",
+                label: "Activo?",
+                value: true
+            )
+        } SUBMIT {
+            label: "Guardar cambios",
+            function: $actualizar(@nuevoNombre, @nuevoNivel)
+        }
+    ]
+}
+
+/* Componente con for-each */
+listaPokemones(string nombre1, string nombre2, string nombre3) {
+    <caja>[
+        T("Lista completa:")
+        T("- $nombre1")
+        T("- $nombre2")
+        T("- $nombre3")
+    ]
+}
