@@ -11,6 +11,7 @@ export class BarraSuperior {
     readonly limpiarSolicitado = output<void>();
     readonly indentarSolicitado = output<void>();
     readonly colorSeleccionado = output<string>();
+    readonly descargarProyectoSolicitado = output<void>();
 
     onAnalizar(): void {
         this.analizarSolicitado.emit();
@@ -27,5 +28,9 @@ export class BarraSuperior {
     onColorChange(event: Event): void {
         const input = event.target as HTMLInputElement;
         this.colorSeleccionado.emit(input.value);
+    }
+
+    onDescargarProyecto(): void {
+        this.descargarProyectoSolicitado.emit();
     }
 }

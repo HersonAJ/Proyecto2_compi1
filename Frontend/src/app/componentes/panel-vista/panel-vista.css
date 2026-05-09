@@ -70,3 +70,39 @@
     white-space: pre-wrap;
     word-break: break-word;
 }
+.tabs-izquierda {
+    display: flex;
+    align-items: stretch;
+}
+
+.tabs-derecha {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
+}
+.accion {
+    height: 24px;
+    padding: 0 0.75rem;
+    border: 1px solid #334155;
+    background-color: #1e293b;
+    color: #cbd5e1;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.accion:hover {
+    background-color: #334155;
+}
+
+.accion.primario {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+.accion.primario:hover {
+    background-color: #1d4ed8;
+}

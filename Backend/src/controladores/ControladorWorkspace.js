@@ -14,6 +14,7 @@ class ControladorWorkspace {
         this.guardar = this.guardar.bind(this);
         this.crearCarpeta = this.crearCarpeta.bind(this);
         this.eliminar = this.eliminar.bind(this);
+        this.descargarProyecto = this.descargarProyecto.bind(this);
     }
 
     listarProyectos(req, res) {
@@ -120,6 +121,26 @@ class ControladorWorkspace {
         } catch (e) {
             console.error('Error en ControladorWork:', e);
             return res.status(500).json({ error: e.message });
+        }
+    }
+    descargarProyecto(req, res) {
+        try {
+            var proyecto = req.query.proyecto;
+
+            if (typeof proyecto !== 'string') {
+                return res.status(400).json({
+                    error: 'Falta parametro "proyecto"'
+                });
+            }
+
+            this.servicio.crearZipProyecto(proyecto, res);
+
+        } catch (e) {
+            console.error('Error en ControladorWork:', e);
+
+            return res.status(500).json({
+                error: e.message
+            });
         }
     }
 }

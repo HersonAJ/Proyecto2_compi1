@@ -170,6 +170,24 @@ class ServicioWorkspace {
         // El archivo de BD esta en la raiz del proyecto y se llama "database.db"
         return rutaRelativa === 'database.db' || rutaRelativa.endsWith('/database.db');
     }
+
+    crearZipProyecto(nombreProyecto, res) {
+        var archiver = require('archiver');
+        var rutaProyecto = this._rutaProyecto(nombreProyecto);
+
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename="' + nombreProyecto + '.zip"'
+        );
+
+        var zip = archiver('zip', {
+            zlib: { level: 9 }
+        });
+        zip.pipe(res);
+        zip.directory(rutaProyecto, nombreProyecto);
+        zip.finalize();
+    }
 }
 
 module.exports = ServicioWorkspace;

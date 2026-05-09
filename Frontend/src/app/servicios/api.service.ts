@@ -90,6 +90,16 @@ export class ApiService {
             { proyecto, ruta }
         );
     }
+
+    descargarProyecto(proyecto: string): Observable<Blob> {
+        return this.http.get(
+            `${this.baseUrl}/workspace/descargar-proyecto`,
+            {
+                params: { proyecto },
+                responseType: 'blob'
+            }
+        );
+    }
     /* ============== SQL ============== */
 
     ejecutarSQL(codigo: string, proyecto: string): Observable<RespuestaEjecucionSQL> {

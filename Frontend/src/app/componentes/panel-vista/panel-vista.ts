@@ -50,4 +50,40 @@ export class PanelVista {
     cambiarTab(tab: 'preview' | 'fuente'): void {
         this.tabActiva.set(tab);
     }
+
+    abrirNuevaPestana(): void {
+        const contenido = this.contenido();
+        if (!contenido) return;
+        const nuevaVentana = window.open('', '_blank');
+        if (!nuevaVentana) return;
+        nuevaVentana.document.open();
+        nuevaVentana.document.write(contenido);
+        nuevaVentana.document.close();
+    }
+
+    descargarHtml(): void {
+        const contenido = this.contenido();
+        if (!contenido) return;
+        const blob = new Blob(
+            [contenido],
+            { type: 'text/html' }
+        );
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const nombre = prompt(
+            'Ingrese el nombre del archivo HTML:',
+            'resultado'
+        );
+        if (nombre === null) {
+            window.URL.revokeObjectURL(url);
+            return;
+        }
+        const nombreLimpio = nombre.trim() || 'resultado';
+        a.download = nombreLimpio + '.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
 }

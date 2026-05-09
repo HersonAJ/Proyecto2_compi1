@@ -15,5 +15,6 @@ router.get('/leer', controlador.leer);
 router.post('/guardar', controlador.guardar);
 router.post('/crear-carpeta', controlador.crearCarpeta);
 router.post('/eliminar', controlador.eliminar);
+router.get('/descargar-proyecto', controlador.descargarProyecto);
 
 module.exports = router;
