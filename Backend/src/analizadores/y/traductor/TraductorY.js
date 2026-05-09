@@ -18,7 +18,6 @@ class TraductorY {
 
         this._recolectarVariables(ast);
         for (const [k, v] of this.variables) {
-            console.log('  ', k, '=>', JSON.stringify(v));
         }
         const css = this._construirCSS(ast);
         const body = this._construirBody(ast);

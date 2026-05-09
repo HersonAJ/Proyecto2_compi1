@@ -43,30 +43,44 @@ class MapeadorCSS {
     }
 
     // Convierte un valor del AST a string CSS
-mapearValor(valor, nombrePropiedad) {
-    switch (valor.tipo) {
-        case 'entero':
-        case 'decimal':
-            // Si es propiedad numerica O un border abreviado, agregar px
-            if (this._esPropiedadConPx(nombrePropiedad) || this._esBorderAbreviado(nombrePropiedad)) {
-                return valor.valor + 'px';
-            }
-            return String(valor.valor);
+    mapearValor(valor, nombrePropiedad) {
+        switch (valor.tipo) {
 
-        case 'porcentaje':
-            return valor.valor;
+            case 'entero':
+            case 'decimal':
 
-        case 'identificador':
-            return this._mapearIdentificador(valor.valor);
+                // Si es propiedad numerica O un border abreviado, agregar px
+                if (
+                    this._esPropiedadConPx(nombrePropiedad) ||
+                    this._esBorderAbreviado(nombrePropiedad)
+                ) {
+                    return valor.valor + 'px';
+                }
 
-        case 'variable':
-            return valor.valor;
+                return String(valor.valor);
 
-        default:
-            return String(valor.valor || '');
+            case 'porcentaje':
+                return valor.valor;
+
+            case 'identificador':
+                return this._mapearIdentificador(valor.valor);
+
+            case 'color_hex':
+                return valor.valor;
+
+            case 'color_rgb':
+                return 'rgb(' +
+                    valor.valor.r + ',' +
+                    valor.valor.g + ',' +
+                    valor.valor.b + ')';
+
+            case 'variable':
+                return valor.valor;
+
+            default:
+                return String(valor.valor || '');
+        }
     }
-}
-
     // Mapea identificadores especiales del lenguaje a CSS
     _mapearIdentificador(id) {
         var mapa = {

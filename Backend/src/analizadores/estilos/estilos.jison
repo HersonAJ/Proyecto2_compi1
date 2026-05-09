@@ -56,7 +56,12 @@
 "/"         { marcarToken(yy,yytext,yylineno,yylloc); return 'DIVISION'; }
 "("         { marcarToken(yy,yytext,yylineno,yylloc); return 'PAR_IZQ'; }
 ")"         { marcarToken(yy,yytext,yylineno,yylloc); return 'PAR_DER'; }
+","         { marcarToken(yy,yytext,yylineno,yylloc); return 'COMA'; }
 "-"         { marcarToken(yy,yytext,yylineno,yylloc); return 'MENOS'; }
+
+\#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}) { marcarToken(yy,yytext,yylineno,yylloc); return 'COLOR_HEX'; }
+
+"rgb"                      { marcarToken(yy,yytext,yylineno,yylloc); return 'RGB'; }
 
 \$[a-zA-Z_][a-zA-Z0-9_]*  { marcarToken(yy,yytext,yylineno,yylloc,'VARIABLE'); return 'VARIABLE'; }
 
@@ -315,7 +320,10 @@ valores
 ;
 
 valor_item
-    : expresion { $$ = $1; }
+    : expresion {
+        $$ = $1;
+    }
+
     | DECIMAL {
         $$ = {
             tipo: 'decimal',
@@ -324,6 +332,7 @@ valor_item
             columna: @1.first_column + 1
         };
     }
+
     | PORCENTAJE {
         $$ = {
             tipo: 'porcentaje',
@@ -332,6 +341,29 @@ valor_item
             columna: @1.first_column + 1
         };
     }
+
+    | COLOR_HEX {
+        $$ = {
+            tipo: 'color_hex',
+            valor: $1,
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+
+    | RGB PAR_IZQ ENTERO COMA ENTERO COMA ENTERO PAR_DER {
+        $$ = {
+            tipo: 'color_rgb',
+            valor: {
+                r: Number($3),
+                g: Number($5),
+                b: Number($7)
+            },
+            linea: @1.first_line,
+            columna: @1.first_column + 1
+        };
+    }
+
     | IDENTIFICADOR {
         $$ = {
             tipo: 'identificador',

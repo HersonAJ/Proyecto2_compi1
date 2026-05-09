@@ -12,7 +12,7 @@ caja {
 /* Herencia */
 caja-destacada extends caja {
     color = white;
-    background color = red;
+    background color = #33d17a;
     text size = 18;
 }
 

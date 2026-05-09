@@ -99,19 +99,71 @@ class ValidadorPropiedades {
 
     _esperarColor(propiedad, valores) {
         if (valores.length === 0) return;
+
         var v = valores[0];
 
-        if (v.tipo !== 'identificador') {
-            this.errores.push(
-                new ErrorYFERA(
-                    'Semantico',
-                    String(v.valor || ''),
-                    v.linea || propiedad.linea,
-                    v.columna || propiedad.columna,
-                    'La propiedad "' + propiedad.nombre + '" espera un color, se encontro: ' + v.tipo + '.'
-                )
-            );
+        // Colores nombrados
+        var coloresValidos = [
+            'blue',
+            'white',
+            'red',
+            'green',
+            'violet',
+            'gray',
+            'black',
+            'lightgray'
+        ];
+
+        // rgb(...)
+        if (v.tipo === 'color_rgb') {
+
+            var r = v.valor.r;
+            var g = v.valor.g;
+            var b = v.valor.b;
+
+            var rgbValido =
+                r >= 0 && r <= 255 &&
+                g >= 0 && g <= 255 &&
+                b >= 0 && b <= 255;
+
+            if (!rgbValido) {
+                this.errores.push(
+                    new ErrorYFERA(
+                        'Semantico',
+                        'rgb(' + r + ',' + g + ',' + b + ')',
+                        v.linea || propiedad.linea,
+                        v.columna || propiedad.columna,
+                        'Los valores RGB deben estar entre 0 y 255.'
+                    )
+                );
+            }
+
+            return;
         }
+
+        // #HEX
+        if (v.tipo === 'color_hex') {
+            return;
+        }
+
+        // Colores nombrados
+        if (
+            v.tipo === 'identificador' &&
+            coloresValidos.indexOf(String(v.valor).toLowerCase()) !== -1
+        ) {
+            return;
+        }
+
+        // Error
+        this.errores.push(
+            new ErrorYFERA(
+                'Semantico',
+                String(v.valor || ''),
+                v.linea || propiedad.linea,
+                v.columna || propiedad.columna,
+                'La propiedad "' + propiedad.nombre + '" espera un color valido.'
+            )
+        );
     }
 
     _esperarAlineacion(propiedad, valores) {
